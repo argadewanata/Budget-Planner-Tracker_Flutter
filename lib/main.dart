@@ -18,6 +18,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      title: "Travel Budget Tracker",
+      theme: ThemeData(
+        primarySwatch: Colors.lightBlue,
+      ),
       home:HomePage(),
     );
   }
