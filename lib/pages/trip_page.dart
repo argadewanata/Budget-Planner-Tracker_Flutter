@@ -1,80 +1,139 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:budgetplannertracker/models/trip.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class TripPage extends StatelessWidget {
-  final List<Trip> tripsList = [
-    Trip('Jakarta', DateTime.now(), DateTime.now(), 100000, 'Car'),
-    Trip('Bandung', DateTime.now(), DateTime.now(), 250000, 'Car'),
-    Trip('Semarang', DateTime.now(), DateTime.now(), 450000, 'Car'),
-    Trip('Yogyakarta', DateTime.now(), DateTime.now(), 500000, 'Bus'),
-    Trip('Surabaya', DateTime.now(), DateTime.now(), 750000, 'Plane'),
-  ];
-
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: ListView.builder(
-        itemCount: tripsList.length,
-        itemBuilder: (BuildContext context, int index) => buildTripCard(context, index),
+    return Scaffold(
+      backgroundColor: Colors.grey[200],
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('Trips').snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          final tripsList = snapshot.data!.docs.map((doc) {
+            return Trip.fromJson(doc.data() as Map<String, dynamic>);
+          }).toList();
+
+          if (tripsList.isEmpty) {
+            return Center(
+              child: Text(
+                'No trips available',
+                style: TextStyle(fontSize: 18, color: Colors.grey),
+              ),
+            );
+          }
+
+          return ListView.builder(
+            itemCount: tripsList.length,
+            itemBuilder: (BuildContext context, int index) => buildTripCard(context, tripsList[index]),
+          );
+        },
       ),
     );
   }
 
-  Widget buildTripCard(BuildContext context, int index) {
-    final trip_plan = tripsList[index];
+  Widget buildTripCard(BuildContext context, Trip trip) {
     final NumberFormat currencyFormatter = NumberFormat.currency(
       locale: 'id_ID',
       symbol: 'Rp',
       decimalDigits: 0,
     );
 
-    return Container(
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0, bottom: 4.0),
-                child: Row(
-                  children: <Widget>[
-                    Text(
-                      trip_plan.title ?? "Unknown",
-                      style: TextStyle(fontSize: 25.0),
+              Row(
+                children: <Widget>[
+                  Icon(Icons.location_on, color: Colors.blueAccent),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      trip.title ?? "Unknown Destination",
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black87),
                     ),
-                    Spacer(),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 4.0, bottom: 8.0),
-                child: Row(
-                  children: <Widget>[
-                    Text(
-                      "${DateFormat('dd/MM/yyyy').format(trip_plan.startDate ?? DateTime.now())} - ${DateFormat('dd/MM/yyyy').format(trip_plan.endDate ?? DateTime.now())}",
-                    ),
-                    Spacer(),
-                  ],
-                ),
+              SizedBox(height: 10),
+              Row(
+                children: <Widget>[
+                  Icon(Icons.date_range, color: Colors.blueAccent),
+                  SizedBox(width: 8),
+                  Text(
+                    formatDateRange(trip.startDate, trip.endDate),
+                    style: TextStyle(fontSize: 16, color: Colors.black54),
+                  ),
+                ],
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                child: Row(
-                  children: <Widget>[
-                    Text(
-                      currencyFormatter.format(trip_plan.budget ?? 0),
-                      style: TextStyle(fontSize: 23.0),
-                    ),
-                    Spacer(),
-                    Text(trip_plan.travelType ?? "Unknown"),
-                  ],
-                ),
+              SizedBox(height: 10),
+              Row(
+                children: <Widget>[
+                  Icon(Icons.attach_money, color: Colors.blueAccent),
+                  SizedBox(width: 8),
+                  Text(
+                    currencyFormatter.format(trip.budget ?? 0),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Colors.black87),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  getTravelTypeIcon(trip.travelType),
+                ],
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  String formatDateRange(DateTime? startDate, DateTime? endDate) {
+    if (startDate == null || endDate == null) return "Unknown Date";
+
+    final DateFormat dayFormat = DateFormat('dd');
+    final DateFormat monthYearFormat = DateFormat('MMM yyyy');
+    final DateFormat fullFormat = DateFormat('dd MMM yyyy');
+
+    if (startDate.year == endDate.year) {
+      if (startDate.month == endDate.month) {
+        return '${dayFormat.format(startDate)} - ${dayFormat.format(endDate)} ${monthYearFormat.format(endDate)}';
+      } else {
+        return '${dayFormat.format(startDate)} ${DateFormat('MMM').format(startDate)} - ${dayFormat.format(endDate)} ${monthYearFormat.format(endDate)}';
+      }
+    } else {
+      return '${fullFormat.format(startDate)} - ${fullFormat.format(endDate)}';
+    }
+  }
+
+  Widget getTravelTypeIcon(String? travelType) {
+    switch (travelType) {
+      case 'Car':
+        return Icon(Icons.directions_car, color: Colors.blueAccent, size: 30);
+      case 'Plane':
+        return Icon(Icons.flight, color: Colors.blueAccent, size: 30);
+      case 'Bus':
+        return Icon(Icons.directions_bus, color: Colors.blueAccent, size: 30);
+      case 'Train':
+        return Icon(Icons.train, color: Colors.blueAccent, size: 30);
+      default:
+        return Icon(Icons.help_outline, color: Colors.grey, size: 30); // Default icon if travel type is unknown
+    }
   }
 }

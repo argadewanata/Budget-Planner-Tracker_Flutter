@@ -22,25 +22,24 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final newTrip = Trip(null, null, null, null, null);
+    final newTrip = Trip(); // Default constructor with no arguments
     return Scaffold(
       appBar: AppBar(
         title: Text("Travel Budget Tracker"),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.add_circle),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => NewTripPage(trip: newTrip),
-                ),
-              );
-            },
-          ),
-        ],
       ),
       body: _children[_currentIndex],
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => NewTripPage(trip: newTrip),
+            ),
+          );
+        },
+        child: Icon(Icons.add),
+        backgroundColor: Colors.blueAccent,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         onTap: onTabTapped,
         currentIndex: _currentIndex,
