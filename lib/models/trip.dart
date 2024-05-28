@@ -1,9 +1,17 @@
 class Trip {
-  final String title;
-  final DateTime startDate;
-  final DateTime endDate;
-  final int budget;
-  final String travelType;
+  String? title;
+  DateTime? startDate;
+  DateTime? endDate;
+  int? budget;
+  String? travelType;
 
   Trip(this.title, this.startDate, this.endDate, this.budget, this.travelType);
+
+  Map<String, dynamic> toJson() => {
+    'title' : title,
+    'startDate':startDate,
+    'endDate': endDate,
+    'budget' : budget,
+    'travelType' : travelType,
+  };
 }

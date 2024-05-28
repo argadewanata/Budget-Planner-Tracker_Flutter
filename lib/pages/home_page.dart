@@ -1,8 +1,9 @@
+import 'package:budgetplannertracker/pages/new_trip_page.dart';
 import 'package:flutter/material.dart';
 import 'package:budgetplannertracker/pages/profile_page.dart';
 import 'package:budgetplannertracker/pages/save_page.dart';
-import 'package:budgetplannertracker/pages/travel_page.dart';
-
+import 'package:budgetplannertracker/pages/trip_page.dart';
+import 'package:budgetplannertracker/models/trip.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,16 +15,30 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   final List<Widget> _children = [
-    TravelPage(),
+    TripPage(),
     SavePage(),
     ProfilePage(),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final newTrip = Trip(null, null, null, null, null);
     return Scaffold(
       appBar: AppBar(
         title: Text("Travel Budget Tracker"),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.add_circle),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => NewTripPage(trip: newTrip),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: _children[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -31,27 +46,25 @@ class _HomePageState extends State<HomePage> {
         currentIndex: _currentIndex,
         items: [
           BottomNavigationBarItem(
-            icon: new Icon(Icons.card_travel),
-            label: "Travel Plan",
+            icon: Icon(Icons.card_travel),
+            label: "Trip Plan",
           ),
           BottomNavigationBarItem(
-            icon: new Icon(Icons.attach_money),
+            icon: Icon(Icons.attach_money),
             label: "Save",
           ),
           BottomNavigationBarItem(
-            icon: new Icon(Icons.account_circle),
+            icon: Icon(Icons.account_circle),
             label: "Profile",
           ),
-        ]
+        ],
       ),
     );
   }
 
-  void onTabTapped(int index){
+  void onTabTapped(int index) {
     setState(() {
       _currentIndex = index;
     });
-
   }
 }
-
