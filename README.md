@@ -1,6 +1,14 @@
-# budgetplannertracker
+# Budget Planner Tracker
 
-A new Flutter project.
+A flutter app for final project group 0 in mobile programming class E 2023/2024
+
+## Members of the Group 0 
+
+| Nama                    | NRP        | 
+| ----------------------- | ---------- |
+| Muhammad Ersya Vinorian | 5025211045 |
+| Syukra Wahyu Ramadhan   | 5025211037 |
+| Rere Arga Dewanata      | 5025201078 |
 
 ## Getting Started
 

@@ -117,6 +117,7 @@ class TripPage extends StatelessWidget {
                 ),
               ],
             ),
+
           ),
         ),
       ),

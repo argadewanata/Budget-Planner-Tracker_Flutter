@@ -66,7 +66,6 @@ class _NewTripPageState extends State<NewTripPage> {
       final int value = int.tryParse(text) ?? 0;
       final String formatted =
           _currencyFormat.format(value).replaceAll(',', '.');
-
       _budgetController.value = TextEditingValue(
         text: formatted,
         selection: TextSelection.collapsed(offset: formatted.length),
