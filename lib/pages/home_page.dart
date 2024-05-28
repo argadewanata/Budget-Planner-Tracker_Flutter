@@ -38,7 +38,6 @@ class _HomePageState extends State<HomePage> {
           );
         },
         child: Icon(Icons.add),
-        backgroundColor: Colors.blueAccent,
       ),
       bottomNavigationBar: BottomNavigationBar(
         onTap: onTabTapped,
