@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:budgetplannertracker/models/trip.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart';  // Add this import for date formatting
 
 class NewTripPage extends StatefulWidget {
   final Trip trip;
@@ -20,14 +20,15 @@ class _NewTripPageState extends State<NewTripPage> {
   final TextEditingController _endDateController = TextEditingController();
 
   DateTime _startDate = DateTime.now();
-  DateTime _endDate = DateTime.now().add(Duration(days: 7));
-  final DateFormat _dateFormat = DateFormat('dd-MM-YYYY');
+  DateTime _endDate = DateTime.now().add(Duration(days: 3));
+  final DateFormat _dateFormat = DateFormat('dd-MM-yyyy'); // DateFormat for displaying dates
   final NumberFormat _currencyFormat = NumberFormat.currency(
     locale: 'id_ID',
     symbol: 'Rp',
     decimalDigits: 0,
   );
   bool _isFormatting = false; // Add a flag to prevent formatting loop
+  String _travelType = 'Car'; // Default travel type
 
   @override
   void initState() {
@@ -73,7 +74,7 @@ class _NewTripPageState extends State<NewTripPage> {
         title: Text('Create a New Trip'),
       ),
       body: Center(
-        child: SingleChildScrollView(
+        child: SingleChildScrollView( // Add SingleChildScrollView to prevent overflow
           padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,7 +93,7 @@ class _NewTripPageState extends State<NewTripPage> {
               ),
               const SizedBox(height: 20),
               Text(
-                "What is your budget for this trip?",
+                "How much is your budget?",
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
@@ -106,7 +107,7 @@ class _NewTripPageState extends State<NewTripPage> {
               ),
               const SizedBox(height: 20),
               Text(
-                "How long?",
+                "When are you planning to travel?",
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
@@ -154,6 +155,73 @@ class _NewTripPageState extends State<NewTripPage> {
                 ),
               ),
               const SizedBox(height: 20),
+              Text(
+                "How will you travel?",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: <Widget>[
+                  Column(
+                    children: [
+                      Icon(Icons.directions_car, color: _travelType == 'Car' ? Colors.blue : Colors.grey),
+                      Radio<String>(
+                        value: 'Car',
+                        groupValue: _travelType,
+                        onChanged: (String? value) {
+                          setState(() {
+                            _travelType = value!;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Icon(Icons.flight, color: _travelType == 'Plane' ? Colors.blue : Colors.grey),
+                      Radio<String>(
+                        value: 'Plane',
+                        groupValue: _travelType,
+                        onChanged: (String? value) {
+                          setState(() {
+                            _travelType = value!;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Icon(Icons.directions_bus, color: _travelType == 'Bus' ? Colors.blue : Colors.grey),
+                      Radio<String>(
+                        value: 'Bus',
+                        groupValue: _travelType,
+                        onChanged: (String? value) {
+                          setState(() {
+                            _travelType = value!;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Icon(Icons.train, color: _travelType == 'Train' ? Colors.blue : Colors.grey),
+                      Radio<String>(
+                        value: 'Train',
+                        groupValue: _travelType,
+                        onChanged: (String? value) {
+                          setState(() {
+                            _travelType = value!;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
               Center(
                 child: ElevatedButton(
                   onPressed: () async {
@@ -161,8 +229,10 @@ class _NewTripPageState extends State<NewTripPage> {
                     widget.trip.startDate = _startDate;
                     widget.trip.endDate = _endDate;
                     widget.trip.budget = int.tryParse(_budgetController.text.replaceAll('.', '').replaceAll('Rp', ''));
+                    widget.trip.travelType = _travelType;  // Add travel type to the trip
 
                     await db.collection("Trips").add(widget.trip.toJson());
+                    Navigator.pop(context);
                   },
                   child: Text("Submit"),
                   style: ElevatedButton.styleFrom(
@@ -170,7 +240,7 @@ class _NewTripPageState extends State<NewTripPage> {
                     textStyle: TextStyle(fontSize: 18),
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),
