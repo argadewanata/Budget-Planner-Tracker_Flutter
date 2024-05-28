@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Trip {
+  String? id;
   String? title;
   DateTime? startDate;
   DateTime? endDate;
@@ -8,7 +9,12 @@ class Trip {
   String? travelType;
 
   Trip(
-      {this.title, this.startDate, this.endDate, this.budget, this.travelType});
+      {this.id,
+      this.title,
+      this.startDate,
+      this.endDate,
+      this.budget,
+      this.travelType});
 
   Map<String, dynamic> toJson() => {
         'title': title,
@@ -18,8 +24,9 @@ class Trip {
         'travelType': travelType,
       };
 
-  Trip.fromJson(Map<String, dynamic> json)
-      : title = json['title'],
+  Trip.fromJson(Map<String, dynamic> json, String documentId)
+      : id = documentId,
+        title = json['title'],
         startDate = (json['startDate'] as Timestamp).toDate(),
         endDate = (json['endDate'] as Timestamp).toDate(),
         budget = json['budget'],
