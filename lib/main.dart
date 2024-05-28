@@ -20,9 +20,21 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: "Travel Budget Tracker",
       theme: ThemeData(
-        primarySwatch: Colors.lightBlue,
+        primarySwatch: Colors.blue,
+        scaffoldBackgroundColor: Colors.white,
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.blue[800],
+          foregroundColor: Colors.white,
+        ),
+        floatingActionButtonTheme: FloatingActionButtonThemeData(
+          backgroundColor: Colors.blue[600],
+        ),
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+          selectedItemColor: Colors.blue[800],
+          unselectedItemColor: Colors.blue[200],
+        ),
       ),
-      home:HomePage(),
+      home: HomePage(),
     );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:budgetplannertracker/models/trip.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';  // Add this import for date formatting
+import 'package:intl/intl.dart';
 
 class NewTripPage extends StatefulWidget {
   final Trip trip;
@@ -21,14 +21,14 @@ class _NewTripPageState extends State<NewTripPage> {
 
   DateTime _startDate = DateTime.now();
   DateTime _endDate = DateTime.now().add(Duration(days: 3));
-  final DateFormat _dateFormat = DateFormat('dd-MM-yyyy'); // DateFormat for displaying dates
+  final DateFormat _dateFormat = DateFormat('dd-MM-yyyy');
   final NumberFormat _currencyFormat = NumberFormat.currency(
     locale: 'id_ID',
     symbol: 'Rp',
     decimalDigits: 0,
   );
-  bool _isFormatting = false; // Add a flag to prevent formatting loop
-  String _travelType = 'Car'; // Default travel type
+  bool _isFormatting = false;
+  String _travelType = 'Car';
 
   @override
   void initState() {
@@ -36,7 +36,7 @@ class _NewTripPageState extends State<NewTripPage> {
     _newTitleController.text = widget.trip.title ?? "";
     _startDateController.text = _dateFormat.format(_startDate);
     _endDateController.text = _dateFormat.format(_endDate);
-    _budgetController.addListener(_formatBudget);  // Add a listener to the budget controller
+    _budgetController.addListener(_formatBudget);
   }
 
   @override
@@ -74,7 +74,7 @@ class _NewTripPageState extends State<NewTripPage> {
         title: Text('Create a New Trip'),
       ),
       body: Center(
-        child: SingleChildScrollView( // Add SingleChildScrollView to prevent overflow
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -129,11 +129,9 @@ class _NewTripPageState extends State<NewTripPage> {
                       _startDateController.text = _dateFormat.format(_startDate);
                       _endDateController.text = _dateFormat.format(_endDate);
                     });
-                    print("Start Date: $_startDate");
-                    print("End Date: $_endDate");
                   }
                 },
-                icon: Icon(Icons.calendar_today, color: Colors.green),
+                icon: Icon(Icons.calendar_today, color: Colors.blue),
                 label: Text('Pick Date Range'),
               ),
               const SizedBox(height: 10),
@@ -229,7 +227,7 @@ class _NewTripPageState extends State<NewTripPage> {
                     widget.trip.startDate = _startDate;
                     widget.trip.endDate = _endDate;
                     widget.trip.budget = int.tryParse(_budgetController.text.replaceAll('.', '').replaceAll('Rp', ''));
-                    widget.trip.travelType = _travelType;  // Add travel type to the trip
+                    widget.trip.travelType = _travelType;
 
                     await db.collection("Trips").add(widget.trip.toJson());
                     Navigator.pop(context);

@@ -7,7 +7,7 @@ class TripPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Colors.white,
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('Trips').snapshots(),
         builder: (context, snapshot) {
@@ -23,7 +23,7 @@ class TripPage extends StatelessWidget {
             return Center(
               child: Text(
                 'No trips available',
-                style: TextStyle(fontSize: 18, color: Colors.grey),
+                style: TextStyle(fontSize: 18, color: Colors.blue[200]),
               ),
             );
           }
@@ -58,7 +58,7 @@ class TripPage extends StatelessWidget {
             children: <Widget>[
               Row(
                 children: <Widget>[
-                  Icon(Icons.location_on, color: Colors.blueAccent),
+                  Icon(Icons.location_on, color: Colors.blue[600]),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -71,7 +71,7 @@ class TripPage extends StatelessWidget {
               SizedBox(height: 10),
               Row(
                 children: <Widget>[
-                  Icon(Icons.date_range, color: Colors.blueAccent),
+                  Icon(Icons.date_range, color: Colors.blue[600]),
                   SizedBox(width: 8),
                   Text(
                     formatDateRange(trip.startDate, trip.endDate),
@@ -82,7 +82,7 @@ class TripPage extends StatelessWidget {
               SizedBox(height: 10),
               Row(
                 children: <Widget>[
-                  Icon(Icons.attach_money, color: Colors.blueAccent),
+                  Icon(Icons.attach_money, color: Colors.blue[600]),
                   SizedBox(width: 8),
                   Text(
                     currencyFormatter.format(trip.budget ?? 0),
@@ -125,15 +125,15 @@ class TripPage extends StatelessWidget {
   Widget getTravelTypeIcon(String? travelType) {
     switch (travelType) {
       case 'Car':
-        return Icon(Icons.directions_car, color: Colors.blueAccent, size: 30);
+        return Icon(Icons.directions_car, color: Colors.blue[600], size: 30);
       case 'Plane':
-        return Icon(Icons.flight, color: Colors.blueAccent, size: 30);
+        return Icon(Icons.flight, color: Colors.blue[600], size: 30);
       case 'Bus':
-        return Icon(Icons.directions_bus, color: Colors.blueAccent, size: 30);
+        return Icon(Icons.directions_bus, color: Colors.blue[600], size: 30);
       case 'Train':
-        return Icon(Icons.train, color: Colors.blueAccent, size: 30);
+        return Icon(Icons.train, color: Colors.blue[600], size: 30);
       default:
-        return Icon(Icons.help_outline, color: Colors.grey, size: 30); // Default icon if travel type is unknown
+        return Icon(Icons.help_outline, color: Colors.blue[200], size: 30);
     }
   }
 }
