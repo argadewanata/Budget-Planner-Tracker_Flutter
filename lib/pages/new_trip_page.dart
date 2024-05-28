@@ -259,7 +259,7 @@ class _NewTripPageState extends State<NewTripPage> {
                           .doc(widget.tripId)
                           .update(widget.trip.toJson());
                     }
-                    Navigator.pop(context);
+                    Navigator.pop(context, widget.trip);
                   },
                   child: Text("Submit"),
                   style: ElevatedButton.styleFrom(

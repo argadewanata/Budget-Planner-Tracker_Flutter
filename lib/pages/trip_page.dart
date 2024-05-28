@@ -70,7 +70,7 @@ class TripPage extends StatelessWidget {
               children: <Widget>[
                 Row(
                   children: <Widget>[
-                    Icon(Icons.location_on, color: Colors.blue[600]),
+                    Icon(Icons.location_on_outlined, color: Colors.blue[600]),
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -86,7 +86,7 @@ class TripPage extends StatelessWidget {
                 SizedBox(height: 10),
                 Row(
                   children: <Widget>[
-                    Icon(Icons.date_range, color: Colors.blue[600]),
+                    Icon(Icons.calendar_today_rounded, color: Colors.blue[600]),
                     SizedBox(width: 8),
                     Text(
                       formatDateRange(trip.startDate, trip.endDate),

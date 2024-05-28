@@ -4,13 +4,25 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'new_trip_page.dart';
 
-class TripDetailPage extends StatelessWidget {
+class TripDetailPage extends StatefulWidget {
   final Trip trip;
   final String tripId;
 
   TripDetailPage({required this.trip, required this.tripId});
 
+  @override
+  _TripDetailPageState createState() => _TripDetailPageState();
+}
+
+class _TripDetailPageState extends State<TripDetailPage> {
   final db = FirebaseFirestore.instance;
+  late Trip _trip;
+
+  @override
+  void initState() {
+    super.initState();
+    _trip = widget.trip;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,19 +38,26 @@ class TripDetailPage extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.edit),
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              final result = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => NewTripPage(trip: trip, tripId: tripId),
+                  builder: (context) =>
+                      NewTripPage(trip: _trip, tripId: widget.tripId),
                 ),
               );
+
+              if (result != null && result is Trip) {
+                setState(() {
+                  _trip = result;
+                });
+              }
             },
           ),
           IconButton(
             icon: Icon(Icons.delete),
             onPressed: () async {
-              await db.collection('Trips').doc(tripId).delete();
+              await db.collection('Trips').doc(widget.tripId).delete();
               Navigator.pop(context);
             },
           ),
@@ -46,52 +65,89 @@ class TripDetailPage extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              trip.title ?? "Unknown Destination",
-              style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87),
-            ),
-            SizedBox(height: 10),
-            Row(
-              children: <Widget>[
-                Icon(Icons.date_range, color: Colors.blue[600]),
-                SizedBox(width: 8),
-                Text(
-                  formatDateRange(trip.startDate, trip.endDate),
-                  style: TextStyle(fontSize: 16, color: Colors.black54),
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
-            Row(
-              children: <Widget>[
-                Icon(Icons.attach_money, color: Colors.blue[600]),
-                SizedBox(width: 8),
-                Text(
-                  currencyFormatter.format(trip.budget ?? 0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Center(
+                child: Text(
+                  _trip.title ?? "Unknown Destination",
                   style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87),
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
                 ),
-              ],
-            ),
-            SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                getTravelTypeIcon(trip.travelType),
-              ],
-            ),
-          ],
+              ),
+              SizedBox(height: 20),
+              Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                elevation: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      buildDetailRow(
+                          Icon(Icons.date_range, color: Colors.blue[600]),
+                          'Travel Dates',
+                          formatDateRange(_trip.startDate, _trip.endDate)),
+                      SizedBox(height: 10),
+                      buildDetailRow(
+                          Icon(Icons.attach_money, color: Colors.blue[600]),
+                          'Budget',
+                          currencyFormatter.format(_trip.budget ?? 0)),
+                      SizedBox(height: 10),
+                      buildDetailRow(getTravelTypeIcon(_trip.travelType),
+                          'Travel Type', _trip.travelType ?? "Unknown"),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  Widget buildDetailRow(Widget icon, String label, String value) {
+    return Row(
+      children: <Widget>[
+        icon,
+        SizedBox(width: 8),
+        Text(
+          '$label: ',
+          style: TextStyle(
+              fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black54),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: TextStyle(fontSize: 16, color: Colors.black87),
+            textAlign: TextAlign.right,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget getTravelTypeIcon(String? travelType) {
+    switch (travelType) {
+      case 'Car':
+        return Icon(Icons.directions_car, color: Colors.blue[600]);
+      case 'Plane':
+        return Icon(Icons.flight, color: Colors.blue[600]);
+      case 'Bus':
+        return Icon(Icons.directions_bus, color: Colors.blue[600]);
+      case 'Train':
+        return Icon(Icons.train, color: Colors.blue[600]);
+      default:
+        return Icon(Icons.help_outline, color: Colors.blue[200]);
+    }
   }
 
   String formatDateRange(DateTime? startDate, DateTime? endDate) {
@@ -109,21 +165,6 @@ class TripDetailPage extends StatelessWidget {
       }
     } else {
       return '${fullFormat.format(startDate)} - ${fullFormat.format(endDate)}';
-    }
-  }
-
-  Widget getTravelTypeIcon(String? travelType) {
-    switch (travelType) {
-      case 'Car':
-        return Icon(Icons.directions_car, color: Colors.blue[600], size: 30);
-      case 'Plane':
-        return Icon(Icons.flight, color: Colors.blue[600], size: 30);
-      case 'Bus':
-        return Icon(Icons.directions_bus, color: Colors.blue[600], size: 30);
-      case 'Train':
-        return Icon(Icons.train, color: Colors.blue[600], size: 30);
-      default:
-        return Icon(Icons.help_outline, color: Colors.blue[200], size: 30);
     }
   }
 }
