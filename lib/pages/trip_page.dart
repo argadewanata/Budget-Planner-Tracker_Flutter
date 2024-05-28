@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:budgetplannertracker/models/trip.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'trip_detail_page.dart';
 
 class TripPage extends StatelessWidget {
   @override
@@ -16,7 +17,7 @@ class TripPage extends StatelessWidget {
           }
 
           final tripsList = snapshot.data!.docs.map((doc) {
-            return Trip.fromJson(doc.data() as Map<String, dynamic>);
+            return Trip.fromJson(doc.data() as Map<String, dynamic>, doc.id);
           }).toList();
 
           if (tripsList.isEmpty) {
@@ -30,14 +31,15 @@ class TripPage extends StatelessWidget {
 
           return ListView.builder(
             itemCount: tripsList.length,
-            itemBuilder: (BuildContext context, int index) => buildTripCard(context, tripsList[index]),
+            itemBuilder: (BuildContext context, int index) => buildTripCard(
+                context, tripsList[index], snapshot.data!.docs[index].id),
           );
         },
       ),
     );
   }
 
-  Widget buildTripCard(BuildContext context, Trip trip) {
+  Widget buildTripCard(BuildContext context, Trip trip, String tripId) {
     final NumberFormat currencyFormatter = NumberFormat.currency(
       locale: 'id_ID',
       symbol: 'Rp',
@@ -51,53 +53,70 @@ class TripPage extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Icon(Icons.location_on, color: Colors.blue[600]),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      trip.title ?? "Unknown Destination",
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black87),
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    TripDetailPage(trip: trip, tripId: tripId),
+              ),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    Icon(Icons.location_on, color: Colors.blue[600]),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        trip.title ?? "Unknown Destination",
+                        style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),
-              Row(
-                children: <Widget>[
-                  Icon(Icons.date_range, color: Colors.blue[600]),
-                  SizedBox(width: 8),
-                  Text(
-                    formatDateRange(trip.startDate, trip.endDate),
-                    style: TextStyle(fontSize: 16, color: Colors.black54),
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),
-              Row(
-                children: <Widget>[
-                  Icon(Icons.attach_money, color: Colors.blue[600]),
-                  SizedBox(width: 8),
-                  Text(
-                    currencyFormatter.format(trip.budget ?? 0),
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Colors.black87),
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  getTravelTypeIcon(trip.travelType),
-                ],
-              ),
-            ],
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(
+                  children: <Widget>[
+                    Icon(Icons.date_range, color: Colors.blue[600]),
+                    SizedBox(width: 8),
+                    Text(
+                      formatDateRange(trip.startDate, trip.endDate),
+                      style: TextStyle(fontSize: 16, color: Colors.black54),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(
+                  children: <Widget>[
+                    Icon(Icons.attach_money, color: Colors.blue[600]),
+                    SizedBox(width: 8),
+                    Text(
+                      currencyFormatter.format(trip.budget ?? 0),
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    getTravelTypeIcon(trip.travelType),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
