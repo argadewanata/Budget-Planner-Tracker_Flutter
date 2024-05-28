@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:budgetplannertracker/models/trip.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';  // Add this import for date formatting
+import 'package:intl/intl.dart';
 
 class NewTripPage extends StatefulWidget {
   final Trip trip;
@@ -16,10 +16,12 @@ class _NewTripPageState extends State<NewTripPage> {
   final db = FirebaseFirestore.instance;
   final TextEditingController _newTitleController = TextEditingController();
   final TextEditingController _budgetController = TextEditingController();
+  final TextEditingController _startDateController = TextEditingController();
+  final TextEditingController _endDateController = TextEditingController();
 
   DateTime _startDate = DateTime.now();
   DateTime _endDate = DateTime.now().add(Duration(days: 7));
-  final DateFormat _dateFormat = DateFormat('yyyy-MM-dd'); // DateFormat for displaying dates
+  final DateFormat _dateFormat = DateFormat('dd-MM-YYYY');
   final NumberFormat _currencyFormat = NumberFormat.currency(
     locale: 'id_ID',
     symbol: 'Rp',
@@ -31,6 +33,8 @@ class _NewTripPageState extends State<NewTripPage> {
   void initState() {
     super.initState();
     _newTitleController.text = widget.trip.title ?? "";
+    _startDateController.text = _dateFormat.format(_startDate);
+    _endDateController.text = _dateFormat.format(_endDate);
     _budgetController.addListener(_formatBudget);  // Add a listener to the budget controller
   }
 
@@ -38,6 +42,8 @@ class _NewTripPageState extends State<NewTripPage> {
   void dispose() {
     _newTitleController.dispose();
     _budgetController.dispose();
+    _startDateController.dispose();
+    _endDateController.dispose();
     super.dispose();
   }
 
@@ -67,30 +73,44 @@ class _NewTripPageState extends State<NewTripPage> {
         title: Text('Create a New Trip'),
       ),
       body: Center(
-        child: SingleChildScrollView( // Add SingleChildScrollView to prevent overflow
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text("Enter a New Destination"),
-              Padding(
-                padding: const EdgeInsets.all(30.0),
-                child: TextField(
-                  controller: _newTitleController,
+              Text(
+                "Where do you want to go?",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: _newTitleController,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Destination',
                 ),
               ),
-              Text("Enter Budget"),
-              Padding(
-                padding: const EdgeInsets.all(30.0),
-                child: TextField(
-                  controller: _budgetController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    hintText: "Enter budget",
-                  ),
+              const SizedBox(height: 20),
+              Text(
+                "What is your budget for this trip?",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: _budgetController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Budget',
                 ),
               ),
-              Text("Select Start and End Date"),
-              ElevatedButton(
+              const SizedBox(height: 20),
+              Text(
+                "How long?",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+              OutlinedButton.icon(
                 onPressed: () async {
                   final DateTimeRange? picked = await showDateRangePicker(
                     context: context,
@@ -105,25 +125,51 @@ class _NewTripPageState extends State<NewTripPage> {
                     setState(() {
                       _startDate = picked.start;
                       _endDate = picked.end;
+                      _startDateController.text = _dateFormat.format(_startDate);
+                      _endDateController.text = _dateFormat.format(_endDate);
                     });
                     print("Start Date: $_startDate");
                     print("End Date: $_endDate");
                   }
                 },
-                child: const Icon(Icons.calendar_today_outlined, color: Colors.green),
+                icon: Icon(Icons.calendar_today, color: Colors.green),
+                label: Text('Pick Date Range'),
               ),
-              Text("Start Date: ${_dateFormat.format(_startDate)}"),
-              Text("End Date: ${_dateFormat.format(_endDate)}"),
-              ElevatedButton(
-                onPressed: () async {
-                  widget.trip.title = _newTitleController.text;
-                  widget.trip.startDate = _startDate;
-                  widget.trip.endDate = _endDate;
-                  widget.trip.budget = int.tryParse(_budgetController.text.replaceAll('.', '').replaceAll('Rp', ''));  // Parse the budget input as int
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: _startDateController,
+                readOnly: true,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Start Date',
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: _endDateController,
+                readOnly: true,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'End Date',
+                ),
+              ),
+              const SizedBox(height: 20),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () async {
+                    widget.trip.title = _newTitleController.text;
+                    widget.trip.startDate = _startDate;
+                    widget.trip.endDate = _endDate;
+                    widget.trip.budget = int.tryParse(_budgetController.text.replaceAll('.', '').replaceAll('Rp', ''));
 
-                  await db.collection("Trips").add(widget.trip.toJson());
-                },
-                child: Text("Submit"),
+                    await db.collection("Trips").add(widget.trip.toJson());
+                  },
+                  child: Text("Submit"),
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                    textStyle: TextStyle(fontSize: 18),
+                  ),
+                ),
               )
             ],
           ),
