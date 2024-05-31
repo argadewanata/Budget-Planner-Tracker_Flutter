@@ -5,8 +5,9 @@ import 'package:intl/intl.dart';
 
 class NewTripPage extends StatefulWidget {
   final Trip trip;
+  final String? tripId;
 
-  NewTripPage({Key? key, required this.trip}) : super(key: key);
+  NewTripPage({Key? key, required this.trip, this.tripId}) : super(key: key);
 
   @override
   State<NewTripPage> createState() => _NewTripPageState();
@@ -34,8 +35,14 @@ class _NewTripPageState extends State<NewTripPage> {
   void initState() {
     super.initState();
     _newTitleController.text = widget.trip.title ?? "";
+    _budgetController.text = widget.trip.budget != null
+        ? _currencyFormat.format(widget.trip.budget).replaceAll(',', '.')
+        : "";
+    _startDate = widget.trip.startDate ?? DateTime.now();
+    _endDate = widget.trip.endDate ?? DateTime.now().add(Duration(days: 3));
     _startDateController.text = _dateFormat.format(_startDate);
     _endDateController.text = _dateFormat.format(_endDate);
+    _travelType = widget.trip.travelType ?? 'Car';
     _budgetController.addListener(_formatBudget);
   }
 
@@ -54,10 +61,11 @@ class _NewTripPageState extends State<NewTripPage> {
     setState(() {
       _isFormatting = true;
 
-      final String text = _budgetController.text.replaceAll('.', '').replaceAll('Rp', '');
+      final String text =
+          _budgetController.text.replaceAll('.', '').replaceAll('Rp', '');
       final int value = int.tryParse(text) ?? 0;
-      final String formatted = _currencyFormat.format(value).replaceAll(',', '.');
-
+      final String formatted =
+          _currencyFormat.format(value).replaceAll(',', '.');
       _budgetController.value = TextEditingValue(
         text: formatted,
         selection: TextSelection.collapsed(offset: formatted.length),
@@ -71,7 +79,7 @@ class _NewTripPageState extends State<NewTripPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create a New Trip'),
+        title: Text(widget.tripId == null ? 'Create a New Trip' : 'Edit Trip'),
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -126,7 +134,8 @@ class _NewTripPageState extends State<NewTripPage> {
                     setState(() {
                       _startDate = picked.start;
                       _endDate = picked.end;
-                      _startDateController.text = _dateFormat.format(_startDate);
+                      _startDateController.text =
+                          _dateFormat.format(_startDate);
                       _endDateController.text = _dateFormat.format(_endDate);
                     });
                   }
@@ -163,7 +172,9 @@ class _NewTripPageState extends State<NewTripPage> {
                 children: <Widget>[
                   Column(
                     children: [
-                      Icon(Icons.directions_car, color: _travelType == 'Car' ? Colors.blue : Colors.grey),
+                      Icon(Icons.directions_car,
+                          color:
+                              _travelType == 'Car' ? Colors.blue : Colors.grey),
                       Radio<String>(
                         value: 'Car',
                         groupValue: _travelType,
@@ -177,7 +188,10 @@ class _NewTripPageState extends State<NewTripPage> {
                   ),
                   Column(
                     children: [
-                      Icon(Icons.flight, color: _travelType == 'Plane' ? Colors.blue : Colors.grey),
+                      Icon(Icons.flight,
+                          color: _travelType == 'Plane'
+                              ? Colors.blue
+                              : Colors.grey),
                       Radio<String>(
                         value: 'Plane',
                         groupValue: _travelType,
@@ -191,7 +205,9 @@ class _NewTripPageState extends State<NewTripPage> {
                   ),
                   Column(
                     children: [
-                      Icon(Icons.directions_bus, color: _travelType == 'Bus' ? Colors.blue : Colors.grey),
+                      Icon(Icons.directions_bus,
+                          color:
+                              _travelType == 'Bus' ? Colors.blue : Colors.grey),
                       Radio<String>(
                         value: 'Bus',
                         groupValue: _travelType,
@@ -205,7 +221,10 @@ class _NewTripPageState extends State<NewTripPage> {
                   ),
                   Column(
                     children: [
-                      Icon(Icons.train, color: _travelType == 'Train' ? Colors.blue : Colors.grey),
+                      Icon(Icons.train,
+                          color: _travelType == 'Train'
+                              ? Colors.blue
+                              : Colors.grey),
                       Radio<String>(
                         value: 'Train',
                         groupValue: _travelType,
@@ -226,11 +245,20 @@ class _NewTripPageState extends State<NewTripPage> {
                     widget.trip.title = _newTitleController.text;
                     widget.trip.startDate = _startDate;
                     widget.trip.endDate = _endDate;
-                    widget.trip.budget = int.tryParse(_budgetController.text.replaceAll('.', '').replaceAll('Rp', ''));
+                    widget.trip.budget = int.tryParse(_budgetController.text
+                        .replaceAll('.', '')
+                        .replaceAll('Rp', ''));
                     widget.trip.travelType = _travelType;
 
-                    await db.collection("Trips").add(widget.trip.toJson());
-                    Navigator.pop(context);
+                    if (widget.tripId == null) {
+                      await db.collection("Trips").add(widget.trip.toJson());
+                    } else {
+                      await db
+                          .collection("Trips")
+                          .doc(widget.tripId)
+                          .update(widget.trip.toJson());
+                    }
+                    Navigator.pop(context, widget.trip);
                   },
                   child: Text("Submit"),
                   style: ElevatedButton.styleFrom(
