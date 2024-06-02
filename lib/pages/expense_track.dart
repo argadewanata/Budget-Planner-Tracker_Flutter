@@ -1,34 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:budgetplannertracker/services/firestore_expense.dart'; // Tambahkan import ini
 import 'package:firebase_core/firebase_core.dart'; // Tambahkan import ini
-import 'package:budgetplannertracker/firebase_options.dart'; // Tambahkan import ini
+import 'package:budgetplannertracker/firebase_options.dart';
 
-
-// void main() async {
-//   WidgetsFlutterBinding.ensureInitialized();
-//   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-//   runApp(ExpenseTrackerApp());
-// }
-
-class ExpenseTrackerApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Expense Tracker',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: ExpenseTrackerPage(),
-    );
-  }
+class ExpenseTrack extends StatefulWidget{
+  final String trip;
+  ExpenseTrack({Key? key, required this.trip}) : super(key: key);
+  State<ExpenseTrack> createState() => _ExpenseTrackerPageState();
 }
 
-class ExpenseTrackerPage extends StatefulWidget {
-  @override
-  _ExpenseTrackerPageState createState() => _ExpenseTrackerPageState();
-}
 
-class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> {
+class _ExpenseTrackerPageState extends State<ExpenseTrack> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
@@ -38,6 +20,7 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> {
   void _addExpense() async {
     if (_formKey.currentState!.validate()) {
       await _firestoreService.addExpense(
+        widget.trip,
         _amountController.text,
         _descriptionController.text,
         _selectedCategory,
@@ -113,6 +96,7 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> {
               onPressed: () async {
                 if (_formKey.currentState!.validate()) {
                   await _firestoreService.updateExpense(
+                    widget.trip,
                     id,
                     _amountController.text,
                     _descriptionController.text,
@@ -201,7 +185,7 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> {
               ),
               SizedBox(height: 20),
               StreamBuilder<List<Map<String, dynamic>>>(
-                stream: _firestoreService.getExpenses(),
+                stream: _firestoreService.getExpenses(widget.trip),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
@@ -247,7 +231,7 @@ class _ExpenseTrackerPageState extends State<ExpenseTrackerPage> {
                                 IconButton(
                                   icon: Icon(Icons.delete),
                                   onPressed: () {
-                                    _firestoreService.deleteExpense(expense['id']);
+                                    _firestoreService.deleteExpense(widget.trip ,expense['id']);
                                   },
                                 ),
                               ],

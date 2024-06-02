@@ -1,7 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:budgetplannertracker/models/trip.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:budgetplannertracker/pages/expense_track.dart';
 
 class NewTripPage extends StatefulWidget {
   final Trip trip;
@@ -240,7 +242,7 @@ class _NewTripPageState extends State<NewTripPage> {
               ),
               const SizedBox(height: 20),
               Center(
-                child: ElevatedButton(
+                child:  ElevatedButton(
                   onPressed: () async {
                     widget.trip.title = _newTitleController.text;
                     widget.trip.startDate = _startDate;
