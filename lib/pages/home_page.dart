@@ -46,12 +46,12 @@ class _HomePageState extends State<HomePage> {
         currentIndex: _currentIndex,
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.card_travel),
-            label: "Trip Plan",
+            icon: Icon(Icons.calendar_today_outlined),
+            label: "All Trip",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.attach_money),
-            label: "Save",
+            icon: Icon(Icons.travel_explore),
+            label: "Current Trip",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.account_circle),
