@@ -16,9 +16,22 @@ class TripPage extends StatelessWidget {
             return Center(child: CircularProgressIndicator());
           }
 
+          final currentDate = DateTime.now();
           final tripsList = snapshot.data!.docs.map((doc) {
             return Trip.fromJson(doc.data() as Map<String, dynamic>, doc.id);
           }).toList();
+
+          final pastTrips = tripsList
+              .where((trip) => trip.endDate!.isBefore(currentDate))
+              .toList();
+          final currentTrips = tripsList
+              .where((trip) =>
+                  trip.startDate!.isBefore(currentDate) &&
+                  trip.endDate!.isAfter(currentDate))
+              .toList();
+          final futureTrips = tripsList
+              .where((trip) => trip.startDate!.isAfter(currentDate))
+              .toList();
 
           if (tripsList.isEmpty) {
             return Center(
@@ -29,12 +42,40 @@ class TripPage extends StatelessWidget {
             );
           }
 
-          return ListView.builder(
-            itemCount: tripsList.length,
-            itemBuilder: (BuildContext context, int index) => buildTripCard(
-                context, tripsList[index], snapshot.data!.docs[index].id),
+          return ListView(
+            children: [
+              buildCategorySection(context, 'Current Trip', currentTrips),
+              buildCategorySection(context, 'Future Trips', futureTrips),
+              buildCategorySection(context, 'Past Trips', pastTrips),
+            ],
           );
         },
+      ),
+    );
+  }
+
+  Widget buildCategorySection(
+      BuildContext context, String categoryTitle, List<Trip> trips) {
+    if (trips.isEmpty) {
+      return SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            categoryTitle,
+            style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87),
+          ),
+          ...trips
+              .map((trip) => buildTripCard(context, trip, trip.id!))
+              .toList(),
+        ],
       ),
     );
   }
@@ -117,7 +158,6 @@ class TripPage extends StatelessWidget {
                 ),
               ],
             ),
-
           ),
         ),
       ),
