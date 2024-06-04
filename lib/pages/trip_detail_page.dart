@@ -3,6 +3,7 @@ import 'package:budgetplannertracker/models/trip.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'new_trip_page.dart';
+import 'expense_track.dart';
 
 class TripDetailPage extends StatefulWidget {
   final Trip trip;
@@ -107,6 +108,7 @@ class _TripDetailPageState extends State<TripDetailPage> {
                 ),
               ),
               SizedBox(height: 20),
+              buildTripCard(context, _trip, widget.tripId),
             ],
           ),
         ),
@@ -167,4 +169,125 @@ class _TripDetailPageState extends State<TripDetailPage> {
       return '${fullFormat.format(startDate)} - ${fullFormat.format(endDate)}';
     }
   }
+}
+
+Widget buildTripCard(BuildContext context, Trip trip, String tripId) {
+  final NumberFormat currencyFormatter = NumberFormat.currency(
+    locale: 'id_ID',
+    symbol: 'Rp',
+    decimalDigits: 0,
+  );
+
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+    child: Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ExpenseTrack(trip: tripId),
+            ),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  Icon(Icons.attach_money, color: Colors.blue[600]),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      "Expenses",
+                      style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+              StreamBuilder<List<Map<String, dynamic>>>(
+                stream: FirebaseFirestore.instance.collection('Trips').doc(tripId).collection('expenses').snapshots().map((snapshot) => snapshot.docs.map((e) => e.data()).toList()),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error loading expenses'));
+                  }
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Center(child: Text('No expenses found'));
+                  }
+
+                  final expenses = snapshot.data!;
+                  final totalExpense = expenses.fold(0, (prev, expense) {
+                    final amount = int.tryParse(expense['amount']) ?? 0;
+                    return prev + amount;
+                  });
+                  final balance = trip.budget! - totalExpense;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Total Expense: ${currencyFormatter.format(totalExpense)}',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      Text
+                        ('Balance: ${currencyFormatter.format(balance)}',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: expenses.length,
+                        itemBuilder: (context, index) {
+                          final expense = expenses[index];
+                          return ListTile(
+                            title: Text(expense['description']),
+                            subtitle: Text('${expense['category']} - ${currencyFormatter.format(int.parse(expense['amount']))}'),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: Icon(Icons.edit),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ExpenseTrack(trip: tripId),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.delete),
+                                  onPressed: () async {
+                                    await FirebaseFirestore.instance.collection('Trips').doc(tripId).collection('expenses').doc(expense['id']).delete();
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  );
+                },
+              ),
+              SizedBox(height: 10),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
 }

@@ -4,6 +4,7 @@ import 'package:budgetplannertracker/pages/profile_page.dart';
 import 'package:budgetplannertracker/pages/save_page.dart';
 import 'package:budgetplannertracker/pages/trip_page.dart';
 import 'package:budgetplannertracker/models/trip.dart';
+import 'package:budgetplannertracker/pages/expense_track.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,7 +17,7 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   final List<Widget> _children = [
     TripPage(),
-    SavePage(),
+    // ExpenseTrackerApp(),
     ProfilePage(),
   ];
 
@@ -39,6 +40,7 @@ class _HomePageState extends State<HomePage> {
         },
         child: Icon(Icons.add),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       bottomNavigationBar: BottomNavigationBar(
         onTap: onTabTapped,
         currentIndex: _currentIndex,
