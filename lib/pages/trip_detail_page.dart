@@ -1,3 +1,4 @@
+import 'package:budgetplannertracker/widgets/notes.dart';
 import 'package:flutter/material.dart';
 import 'package:budgetplannertracker/models/trip.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -109,6 +110,8 @@ class _TripDetailPageState extends State<TripDetailPage> {
               ),
               SizedBox(height: 20),
               buildTripCard(context, _trip, widget.tripId),
+              SizedBox(height: 20),
+              NotesWidget(tripId: widget.tripId),
             ],
           ),
         ),
@@ -216,7 +219,13 @@ Widget buildTripCard(BuildContext context, Trip trip, String tripId) {
               ),
               SizedBox(height: 10),
               StreamBuilder<List<Map<String, dynamic>>>(
-                stream: FirebaseFirestore.instance.collection('Trips').doc(tripId).collection('expenses').snapshots().map((snapshot) => snapshot.docs.map((e) => e.data()).toList()),
+                stream: FirebaseFirestore.instance
+                    .collection('Trips')
+                    .doc(tripId)
+                    .collection('expenses')
+                    .snapshots()
+                    .map((snapshot) =>
+                        snapshot.docs.map((e) => e.data()).toList()),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
@@ -239,11 +248,13 @@ Widget buildTripCard(BuildContext context, Trip trip, String tripId) {
                     children: [
                       Text(
                         'Total Expense: ${currencyFormatter.format(totalExpense)}',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
-                      Text
-                        ('Balance: ${currencyFormatter.format(balance)}',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      Text(
+                        'Balance: ${currencyFormatter.format(balance)}',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       ListView.builder(
                         shrinkWrap: true,
@@ -253,7 +264,8 @@ Widget buildTripCard(BuildContext context, Trip trip, String tripId) {
                           final expense = expenses[index];
                           return ListTile(
                             title: Text(expense['description']),
-                            subtitle: Text('${expense['category']} - ${currencyFormatter.format(int.parse(expense['amount']))}'),
+                            subtitle: Text(
+                                '${expense['category']} - ${currencyFormatter.format(int.parse(expense['amount']))}'),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -263,7 +275,8 @@ Widget buildTripCard(BuildContext context, Trip trip, String tripId) {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => ExpenseTrack(trip: tripId),
+                                        builder: (context) =>
+                                            ExpenseTrack(trip: tripId),
                                       ),
                                     );
                                   },
@@ -271,7 +284,12 @@ Widget buildTripCard(BuildContext context, Trip trip, String tripId) {
                                 IconButton(
                                   icon: Icon(Icons.delete),
                                   onPressed: () async {
-                                    await FirebaseFirestore.instance.collection('Trips').doc(tripId).collection('expenses').doc(expense['id']).delete();
+                                    await FirebaseFirestore.instance
+                                        .collection('Trips')
+                                        .doc(tripId)
+                                        .collection('expenses')
+                                        .doc(expense['id'])
+                                        .delete();
                                   },
                                 ),
                               ],
