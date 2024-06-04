@@ -201,7 +201,8 @@ Widget buildTripCard(BuildContext context, Trip trip, String tripId) {
             children: <Widget>[
               Row(
                 children: <Widget>[
-                  Icon(Icons.attach_money, color: Colors.blue[600]),                  SizedBox(width: 8),
+                  Icon(Icons.attach_money, color: Colors.blue[600]),
+                  SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       "Expenses",
@@ -226,13 +227,22 @@ Widget buildTripCard(BuildContext context, Trip trip, String tripId) {
                   if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return Center(child: Text('No expenses found'));
                   }
-                  final expenses = snapshot.data!;
-                  final totalExpense = expenses.fold(0, (prev, expense) => prev + int.parse(expense['amount']));
 
+                  final expenses = snapshot.data!;
+                  final totalExpense = expenses.fold(0, (prev, expense) {
+                    final amount = int.tryParse(expense['amount']) ?? 0;
+                    return prev + amount;
+                  });
+                  final balance = trip.budget! - totalExpense;
                   return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Total Expense: ${currencyFormatter.format(totalExpense)}',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      Text
+                        ('Balance: ${currencyFormatter.format(balance)}',
                         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       ListView.builder(
