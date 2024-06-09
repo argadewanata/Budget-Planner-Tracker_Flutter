@@ -1,10 +1,9 @@
 import 'package:budgetplannertracker/pages/new_trip_page.dart';
 import 'package:flutter/material.dart';
 import 'package:budgetplannertracker/pages/profile_page.dart';
-import 'package:budgetplannertracker/pages/save_page.dart';
 import 'package:budgetplannertracker/pages/trip_page.dart';
+import 'package:budgetplannertracker/pages/current_trip_page.dart';
 import 'package:budgetplannertracker/models/trip.dart';
-import 'package:budgetplannertracker/pages/expense_track.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,7 +16,7 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   final List<Widget> _children = [
     TripPage(),
-    // ExpenseTrackerApp(),
+    CurrentTripPage(),
     ProfilePage(),
   ];
 

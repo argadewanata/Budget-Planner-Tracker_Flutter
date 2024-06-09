@@ -4,7 +4,9 @@ import 'package:budgetplannertracker/models/trip.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'trip_detail_page.dart';
 
-class TripPage extends StatelessWidget {
+class CurrentTripPage extends StatelessWidget {
+  const CurrentTripPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,45 +23,21 @@ class TripPage extends StatelessWidget {
             return Trip.fromJson(doc.data() as Map<String, dynamic>, doc.id);
           }).toList();
 
-          final pastTrips = tripsList.where((trip) => trip.endDate!.isBefore(currentDate)).toList();
-          final futureTrips = tripsList.where((trip) => trip.startDate!.isAfter(currentDate)).toList();
+          final currentTrips = tripsList.where((trip) => trip.startDate!.isBefore(currentDate) && trip.endDate!.isAfter(currentDate)).toList();
 
-          if (tripsList.isEmpty) {
+          if (currentTrips.isEmpty) {
             return Center(
               child: Text(
-                'No trips available',
+                'No current trips available',
                 style: TextStyle(fontSize: 18, color: Colors.blue[200]),
               ),
             );
           }
 
           return ListView(
-            children: [
-              buildCategorySection(context, 'Future Trips', futureTrips),
-              buildCategorySection(context, 'Past Trips', pastTrips),
-            ],
+            children: currentTrips.map((trip) => buildTripCard(context, trip, trip.id!)).toList(),
           );
         },
-      ),
-    );
-  }
-
-  Widget buildCategorySection(BuildContext context, String categoryTitle, List<Trip> trips) {
-    if (trips.isEmpty) {
-      return SizedBox.shrink();
-    }
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            categoryTitle,
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black87),
-          ),
-          ...trips.map((trip) => buildTripCard(context, trip, trip.id!)).toList(),
-        ],
       ),
     );
   }
