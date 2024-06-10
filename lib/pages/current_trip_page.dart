@@ -35,6 +35,7 @@ class CurrentTripPage extends StatelessWidget {
           }
 
           return ListView(
+            padding: EdgeInsets.all(16.0),
             children: currentTrips.map((trip) => buildTripCard(context, trip, trip.id!)).toList(),
           );
         },
@@ -50,7 +51,7 @@ class CurrentTripPage extends StatelessWidget {
     );
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Card(
         elevation: 4,
         shape: RoundedRectangleBorder(
@@ -67,19 +68,19 @@ class CurrentTripPage extends StatelessWidget {
             );
           },
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Row(
                   children: <Widget>[
-                    Icon(Icons.location_on_outlined, color: Colors.blue[600]),
+                    Icon(Icons.location_on_outlined, color: Colors.blue[600], size: 30),
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         trip.title ?? "Unknown Destination",
                         style: TextStyle(
-                            fontSize: 22,
+                            fontSize: 26,
                             fontWeight: FontWeight.bold,
                             color: Colors.black87),
                       ),
@@ -89,23 +90,23 @@ class CurrentTripPage extends StatelessWidget {
                 SizedBox(height: 10),
                 Row(
                   children: <Widget>[
-                    Icon(Icons.calendar_today_rounded, color: Colors.blue[600]),
+                    Icon(Icons.calendar_today_rounded, color: Colors.blue[600], size: 30),
                     SizedBox(width: 8),
                     Text(
                       formatDateRange(trip.startDate, trip.endDate),
-                      style: TextStyle(fontSize: 16, color: Colors.black54),
+                      style: TextStyle(fontSize: 20, color: Colors.black54),
                     ),
                   ],
                 ),
                 SizedBox(height: 10),
                 Row(
                   children: <Widget>[
-                    Icon(Icons.attach_money, color: Colors.blue[600]),
+                    Icon(Icons.attach_money, color: Colors.blue[600], size: 30),
                     SizedBox(width: 8),
                     Text(
                       currencyFormatter.format(trip.budget ?? 0),
                       style: TextStyle(
-                          fontSize: 20,
+                          fontSize: 22,
                           fontWeight: FontWeight.w500,
                           color: Colors.black87),
                     ),
@@ -115,7 +116,7 @@ class CurrentTripPage extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
-                    getTravelTypeIcon(trip.travelType),
+                    getTravelTypeIcon(trip.travelType, size: 30),
                   ],
                 ),
               ],
@@ -144,18 +145,18 @@ class CurrentTripPage extends StatelessWidget {
     }
   }
 
-  Widget getTravelTypeIcon(String? travelType) {
+  Widget getTravelTypeIcon(String? travelType, {double size = 24}) {
     switch (travelType) {
       case 'Car':
-        return Icon(Icons.directions_car, color: Colors.blue[600], size: 30);
+        return Icon(Icons.directions_car, color: Colors.blue[600], size: size);
       case 'Plane':
-        return Icon(Icons.flight, color: Colors.blue[600], size: 30);
+        return Icon(Icons.flight, color: Colors.blue[600], size: size);
       case 'Bus':
-        return Icon(Icons.directions_bus, color: Colors.blue[600], size: 30);
+        return Icon(Icons.directions_bus, color: Colors.blue[600], size: size);
       case 'Train':
-        return Icon(Icons.train, color: Colors.blue[600], size: 30);
+        return Icon(Icons.train, color: Colors.blue[600], size: size);
       default:
-        return Icon(Icons.help_outline, color: Colors.blue[200], size: 30);
+        return Icon(Icons.help_outline, color: Colors.blue[200], size: size);
     }
   }
 }
