@@ -162,6 +162,7 @@ class _TripDetailPageState extends State<TripDetailPage> {
         final budget = trip.budget ?? 0;
         final balance = budget - totalExpense;
         final progress = totalExpense / budget;
+        final percentageUsed = (progress * 100).toStringAsFixed(2);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,16 +178,31 @@ class _TripDetailPageState extends State<TripDetailPage> {
             LinearProgressIndicator(
               value: progress,
               backgroundColor: Colors.red[100],
-              color: progress > 0.75 ? Colors.red : (progress > 0.5 ? Colors.orange : Colors.green),
+              color: progress > 0.75
+                  ? Colors.red
+                  : (progress > 0.5 ? Colors.orange : Colors.green),
               minHeight: 20,
             ),
-            SizedBox(height: 10),
-            Text(
-              'Total Expense: ${currencyFormatter.format(totalExpense)}',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.black87,
-              ),
+            SizedBox(height: 5),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Total Expense: ${currencyFormatter.format(totalExpense)}',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
+                ),
+                Text(
+                  '$percentageUsed%',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black87,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
           ],
         );
