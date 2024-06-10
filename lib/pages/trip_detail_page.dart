@@ -91,6 +91,22 @@ class _TripDetailPageState extends State<TripDetailPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
+                      Row(
+                        children: <Widget>[
+                          Icon(Icons.info_outline, color: Colors.blue[600]),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              "Trip Detail",
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 10),
                       buildDetailRow(
                           Icon(Icons.date_range, color: Colors.blue[600]),
                           'Travel Dates',
@@ -117,7 +133,122 @@ class _TripDetailPageState extends State<TripDetailPage> {
                 elevation: 4,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: buildTripCard(context, _trip, widget.tripId),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: <Widget>[
+                          Icon(Icons.attach_money, color: Colors.blue[600]),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              "Expenses Detail",
+                              style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 10),
+                      StreamBuilder<List<Map<String, dynamic>>>(
+                        stream: FirebaseFirestore.instance
+                            .collection('Trips')
+                            .doc(widget.tripId)
+                            .collection('expenses')
+                            .snapshots()
+                            .map((snapshot) => snapshot.docs.map((e) => e.data()).toList()),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return Center(child: CircularProgressIndicator());
+                          }
+                          if (snapshot.hasError) {
+                            return Center(child: Text('Error loading expenses'));
+                          }
+                          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                            return Center(child: Text('No expenses found'));
+                          }
+
+                          final expenses = snapshot.data!;
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemCount: expenses.length,
+                                itemBuilder: (context, index) {
+                                  final expense = expenses[index];
+                                  return InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ExpenseTrack(trip: widget.tripId),
+                                        ),
+                                      );
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                expense['description'],
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.black87,
+                                                ),
+                                              ),
+                                              Text(
+                                                '${expense['category']} - ${currencyFormatter.format(int.parse(expense['amount']))}',
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+                                              IconButton(
+                                                icon: Icon(Icons.edit),
+                                                onPressed: () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) => ExpenseTrack(trip: widget.tripId),
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                              IconButton(
+                                                icon: Icon(Icons.delete),
+                                                onPressed: () async {
+                                                  await FirebaseFirestore.instance
+                                                      .collection('Trips')
+                                                      .doc(widget.tripId)
+                                                      .collection('expenses')
+                                                      .doc(expense['id'])
+                                                      .delete();
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                      SizedBox(height: 10),
+                    ],
+                  ),
                 ),
               ),
               SizedBox(height: 20),
@@ -251,106 +382,4 @@ class _TripDetailPageState extends State<TripDetailPage> {
       return '${fullFormat.format(startDate)} - ${fullFormat.format(endDate)}';
     }
   }
-}
-
-Widget buildTripCard(BuildContext context, Trip trip, String tripId) {
-  final NumberFormat currencyFormatter = NumberFormat.currency(
-    locale: 'id_ID',
-    symbol: 'Rp',
-    decimalDigits: 0,
-  );
-
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: <Widget>[
-      Row(
-        children: <Widget>[
-          Icon(Icons.attach_money, color: Colors.blue[600]),
-          SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              "Expenses Detail",
-              style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87),
-            ),
-          ),
-        ],
-      ),
-      SizedBox(height: 10),
-      StreamBuilder<List<Map<String, dynamic>>>(
-        stream: FirebaseFirestore.instance
-            .collection('Trips')
-            .doc(tripId)
-            .collection('expenses')
-            .snapshots()
-            .map((snapshot) => snapshot.docs.map((e) => e.data()).toList()),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Error loading expenses'));
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No expenses found'));
-          }
-
-          final expenses = snapshot.data!;
-          final totalExpense = expenses.fold(0, (prev, expense) {
-            final amount = int.tryParse(expense['amount']) ?? 0;
-            return prev + amount;
-          });
-          final balance = trip.budget! - totalExpense;
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ListView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: expenses.length,
-                itemBuilder: (context, index) {
-                  final expense = expenses[index];
-                  return ListTile(
-                    title: Text(expense['description']),
-                    subtitle: Text(
-                        '${expense['category']} - ${currencyFormatter.format(int.parse(expense['amount']))}'),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.edit),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ExpenseTrack(trip: tripId),
-                              ),
-                            );
-                          },
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.delete),
-                          onPressed: () async {
-                            await FirebaseFirestore.instance
-                                .collection('Trips')
-                                .doc(tripId)
-                                .collection('expenses')
-                                .doc(expense['id'])
-                                .delete();
-                          },
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ],
-          );
-        },
-      ),
-      SizedBox(height: 10),
-    ],
-  );
 }
