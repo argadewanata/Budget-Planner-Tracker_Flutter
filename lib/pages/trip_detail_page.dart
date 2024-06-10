@@ -19,6 +19,11 @@ class TripDetailPage extends StatefulWidget {
 class _TripDetailPageState extends State<TripDetailPage> {
   final db = FirebaseFirestore.instance;
   late Trip _trip;
+  final NumberFormat currencyFormatter = NumberFormat.currency(
+    locale: 'id_ID',
+    symbol: 'Rp',
+    decimalDigits: 0,
+  );
 
   @override
   void initState() {
@@ -28,12 +33,6 @@ class _TripDetailPageState extends State<TripDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final NumberFormat currencyFormatter = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'Rp',
-      decimalDigits: 0,
-    );
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Trip Details'),
@@ -109,6 +108,8 @@ class _TripDetailPageState extends State<TripDetailPage> {
                 ),
               ),
               SizedBox(height: 20),
+              buildBudgetProgressBar(context, _trip),
+              SizedBox(height: 20),
               buildTripCard(context, _trip, widget.tripId),
               SizedBox(height: 20),
               NotesWidget(tripId: widget.tripId),
@@ -137,6 +138,59 @@ class _TripDetailPageState extends State<TripDetailPage> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget buildBudgetProgressBar(BuildContext context, Trip trip) {
+    return StreamBuilder<List<Map<String, dynamic>>>(
+      stream: FirebaseFirestore.instance
+          .collection('Trips')
+          .doc(trip.id)
+          .collection('expenses')
+          .snapshots()
+          .map((snapshot) => snapshot.docs.map((e) => e.data()).toList()),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return Center(child: CircularProgressIndicator());
+        }
+
+        final expenses = snapshot.data!;
+        final totalExpense = expenses.fold(0, (prev, expense) {
+          final amount = int.tryParse(expense['amount']) ?? 0;
+          return prev + amount;
+        });
+        final budget = trip.budget ?? 0;
+        final balance = budget - totalExpense;
+        final progress = totalExpense / budget;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Balance: ${currencyFormatter.format(balance)}',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 10),
+            LinearProgressIndicator(
+              value: progress,
+              backgroundColor: Colors.red[100],
+              color: progress > 0.75 ? Colors.red : (progress > 0.5 ? Colors.orange : Colors.green),
+              minHeight: 20,
+            ),
+            SizedBox(height: 10),
+            Text(
+              'Total Expense: ${currencyFormatter.format(totalExpense)}',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.black87,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -208,7 +262,7 @@ Widget buildTripCard(BuildContext context, Trip trip, String tripId) {
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      "Expenses",
+                      "Expenses Detail",
                       style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
@@ -225,7 +279,7 @@ Widget buildTripCard(BuildContext context, Trip trip, String tripId) {
                     .collection('expenses')
                     .snapshots()
                     .map((snapshot) =>
-                        snapshot.docs.map((e) => e.data()).toList()),
+                    snapshot.docs.map((e) => e.data()).toList()),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
@@ -246,16 +300,6 @@ Widget buildTripCard(BuildContext context, Trip trip, String tripId) {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Total Expense: ${currencyFormatter.format(totalExpense)}',
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        'Balance: ${currencyFormatter.format(balance)}',
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
                       ListView.builder(
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),
