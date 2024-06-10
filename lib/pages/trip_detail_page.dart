@@ -110,7 +110,16 @@ class _TripDetailPageState extends State<TripDetailPage> {
               SizedBox(height: 20),
               buildBudgetProgressBar(context, _trip),
               SizedBox(height: 20),
-              buildTripCard(context, _trip, widget.tripId),
+              Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                elevation: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: buildTripCard(context, _trip, widget.tripId),
+                ),
+              ),
               SizedBox(height: 20),
               NotesWidget(tripId: widget.tripId),
             ],
@@ -251,121 +260,97 @@ Widget buildTripCard(BuildContext context, Trip trip, String tripId) {
     decimalDigits: 0,
   );
 
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-    child: Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ExpenseTrack(trip: tripId),
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: <Widget>[
+      Row(
+        children: <Widget>[
+          Icon(Icons.attach_money, color: Colors.blue[600]),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              "Expenses Detail",
+              style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87),
             ),
-          );
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Icon(Icons.attach_money, color: Colors.blue[600]),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      "Expenses Detail",
-                      style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),
-              StreamBuilder<List<Map<String, dynamic>>>(
-                stream: FirebaseFirestore.instance
-                    .collection('Trips')
-                    .doc(tripId)
-                    .collection('expenses')
-                    .snapshots()
-                    .map((snapshot) =>
-                    snapshot.docs.map((e) => e.data()).toList()),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                  if (snapshot.hasError) {
-                    return Center(child: Text('Error loading expenses'));
-                  }
-                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(child: Text('No expenses found'));
-                  }
+          ),
+        ],
+      ),
+      SizedBox(height: 10),
+      StreamBuilder<List<Map<String, dynamic>>>(
+        stream: FirebaseFirestore.instance
+            .collection('Trips')
+            .doc(tripId)
+            .collection('expenses')
+            .snapshots()
+            .map((snapshot) => snapshot.docs.map((e) => e.data()).toList()),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error loading expenses'));
+          }
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No expenses found'));
+          }
 
-                  final expenses = snapshot.data!;
-                  final totalExpense = expenses.fold(0, (prev, expense) {
-                    final amount = int.tryParse(expense['amount']) ?? 0;
-                    return prev + amount;
-                  });
-                  final balance = trip.budget! - totalExpense;
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: expenses.length,
-                        itemBuilder: (context, index) {
-                          final expense = expenses[index];
-                          return ListTile(
-                            title: Text(expense['description']),
-                            subtitle: Text(
-                                '${expense['category']} - ${currencyFormatter.format(int.parse(expense['amount']))}'),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: Icon(Icons.edit),
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            ExpenseTrack(trip: tripId),
-                                      ),
-                                    );
-                                  },
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.delete),
-                                  onPressed: () async {
-                                    await FirebaseFirestore.instance
-                                        .collection('Trips')
-                                        .doc(tripId)
-                                        .collection('expenses')
-                                        .doc(expense['id'])
-                                        .delete();
-                                  },
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+          final expenses = snapshot.data!;
+          final totalExpense = expenses.fold(0, (prev, expense) {
+            final amount = int.tryParse(expense['amount']) ?? 0;
+            return prev + amount;
+          });
+          final balance = trip.budget! - totalExpense;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: expenses.length,
+                itemBuilder: (context, index) {
+                  final expense = expenses[index];
+                  return ListTile(
+                    title: Text(expense['description']),
+                    subtitle: Text(
+                        '${expense['category']} - ${currencyFormatter.format(int.parse(expense['amount']))}'),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ExpenseTrack(trip: tripId),
+                              ),
+                            );
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete),
+                          onPressed: () async {
+                            await FirebaseFirestore.instance
+                                .collection('Trips')
+                                .doc(tripId)
+                                .collection('expenses')
+                                .doc(expense['id'])
+                                .delete();
+                          },
+                        ),
+                      ],
+                    ),
                   );
                 },
               ),
-              SizedBox(height: 10),
             ],
-          ),
-        ),
+          );
+        },
       ),
-    ),
+      SizedBox(height: 10),
+    ],
   );
 }
