@@ -2,8 +2,8 @@ import 'package:budgetplannertracker/pages/new_trip_page.dart';
 import 'package:flutter/material.dart';
 import 'package:budgetplannertracker/pages/profile_page.dart';
 import 'package:budgetplannertracker/pages/trip_page.dart';
-import 'package:budgetplannertracker/pages/current_trip_page.dart';
 import 'package:budgetplannertracker/models/trip.dart';
+import 'package:budgetplannertracker/pages/current_trip_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -28,7 +28,8 @@ class _HomePageState extends State<HomePage> {
         title: Text("Travel Budget Tracker"),
       ),
       body: _children[_currentIndex],
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: _currentIndex == 1
+          ? FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
@@ -38,8 +39,8 @@ class _HomePageState extends State<HomePage> {
           );
         },
         child: Icon(Icons.add),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      )
+          : null,
       bottomNavigationBar: BottomNavigationBar(
         onTap: onTabTapped,
         currentIndex: _currentIndex,
