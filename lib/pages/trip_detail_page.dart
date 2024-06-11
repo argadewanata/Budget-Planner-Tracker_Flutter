@@ -158,16 +158,42 @@ class _TripDetailPageState extends State<TripDetailPage> {
                             .doc(widget.tripId)
                             .collection('expenses')
                             .snapshots()
-                            .map((snapshot) => snapshot.docs.map((e) => e.data()).toList()),
+                            .map((snapshot) =>
+                                snapshot.docs.map((e) => e.data()).toList()),
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
                             return Center(child: CircularProgressIndicator());
                           }
                           if (snapshot.hasError) {
-                            return Center(child: Text('Error loading expenses'));
+                            return Center(
+                                child: Text('Error loading expenses'));
                           }
                           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                            return Center(child: Text('No expenses found'));
+                            return InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        ExpenseTrack(trip: widget.tripId),
+                                  ),
+                                );
+                              },
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8.0),
+                                child: Center(
+                                  child: Text(
+                                    'No expenses found. Tap to add.',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.blue[600],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
                           }
 
                           final expenses = snapshot.data!;
@@ -185,56 +211,49 @@ class _TripDetailPageState extends State<TripDetailPage> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => ExpenseTrack(trip: widget.tripId),
+                                          builder: (context) =>
+                                              ExpenseTrack(trip: widget.tripId),
                                         ),
                                       );
                                     },
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    child: ListTile(
+                                      title: Text(
+                                        expense['description'],
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                      subtitle: Text(
+                                        '${expense['category']} - ${currencyFormatter.format(int.parse(expense['amount']))}',
+                                      ),
+                                      trailing: Row(
+                                        mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                expense['description'],
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.black87,
+                                          IconButton(
+                                            icon: Icon(Icons.edit),
+                                            onPressed: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ExpenseTrack(
+                                                          trip: widget.tripId),
                                                 ),
-                                              ),
-                                              Text(
-                                                '${expense['category']} - ${currencyFormatter.format(int.parse(expense['amount']))}',
-                                              ),
-                                            ],
+                                              );
+                                            },
                                           ),
-                                          Row(
-                                            children: [
-                                              IconButton(
-                                                icon: Icon(Icons.edit),
-                                                onPressed: () {
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) => ExpenseTrack(trip: widget.tripId),
-                                                    ),
-                                                  );
-                                                },
-                                              ),
-                                              IconButton(
-                                                icon: Icon(Icons.delete),
-                                                onPressed: () async {
-                                                  await FirebaseFirestore.instance
-                                                      .collection('Trips')
-                                                      .doc(widget.tripId)
-                                                      .collection('expenses')
-                                                      .doc(expense['id'])
-                                                      .delete();
-                                                },
-                                              ),
-                                            ],
+                                          IconButton(
+                                            icon: Icon(Icons.delete),
+                                            onPressed: () async {
+                                              await FirebaseFirestore.instance
+                                                  .collection('Trips')
+                                                  .doc(widget.tripId)
+                                                  .collection('expenses')
+                                                  .doc(expense['id'])
+                                                  .delete();
+                                            },
                                           ),
                                         ],
                                       ),
