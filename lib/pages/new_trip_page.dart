@@ -1,3 +1,4 @@
+import 'package:budgetplannertracker/services/trip_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:budgetplannertracker/models/trip.dart';
@@ -16,7 +17,7 @@ class NewTripPage extends StatefulWidget {
 }
 
 class _NewTripPageState extends State<NewTripPage> {
-  final db = FirebaseFirestore.instance;
+  final _tripService = TripService();
   final TextEditingController _newTitleController = TextEditingController();
   final TextEditingController _budgetController = TextEditingController();
   final TextEditingController _startDateController = TextEditingController();
@@ -242,7 +243,7 @@ class _NewTripPageState extends State<NewTripPage> {
               ),
               const SizedBox(height: 20),
               Center(
-                child:  ElevatedButton(
+                child: ElevatedButton(
                   onPressed: () async {
                     widget.trip.title = _newTitleController.text;
                     widget.trip.startDate = _startDate;
@@ -253,12 +254,9 @@ class _NewTripPageState extends State<NewTripPage> {
                     widget.trip.travelType = _travelType;
 
                     if (widget.tripId == null) {
-                      await db.collection("Trips").add(widget.trip.toJson());
+                      _tripService.create(widget.trip);
                     } else {
-                      await db
-                          .collection("Trips")
-                          .doc(widget.tripId)
-                          .update(widget.trip.toJson());
+                      _tripService.update(widget.trip, widget.tripId!);
                     }
                     Navigator.pop(context, widget.trip);
                   },

@@ -1,9 +1,18 @@
+import 'package:budgetplannertracker/services/auth_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirestoreService {
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final _auth = AuthService();
+  late DocumentReference _db;
 
-  Future<void> addExpense(String tripId, String amount, String description, String category) async {
+  FirestoreService() {
+    _db = FirebaseFirestore.instance
+        .collection('Users')
+        .doc(_auth.getCurrentUserId());
+  }
+
+  Future<void> addExpense(
+      String tripId, String amount, String description, String category) async {
     try {
       await _db.collection('Trips/$tripId/budget').add({
         'amount': amount,
@@ -17,7 +26,11 @@ class FirestoreService {
   }
 
   Stream<List<Map<String, dynamic>>> getExpenses(String tripId) {
-    return _db.collection('Trips/$tripId/budget').orderBy('timestamp', descending: true).snapshots().map((snapshot) {
+    return _db
+        .collection('Trips/$tripId/budget')
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .map((snapshot) {
       return snapshot.docs.map((doc) {
         return {
           'id': doc.id,
@@ -30,7 +43,7 @@ class FirestoreService {
     });
   }
 
-  Future<void> deleteExpense(tripId,String id) async {
+  Future<void> deleteExpense(tripId, String id) async {
     try {
       await _db.collection('Trips/$tripId/budget').doc(id).delete();
     } catch (e) {
@@ -38,7 +51,8 @@ class FirestoreService {
     }
   }
 
-  Future<void> updateExpense(String tripId,String id, String amount, String description, String category) async {
+  Future<void> updateExpense(String tripId, String id, String amount,
+      String description, String category) async {
     try {
       await _db.collection('Trips/$tripId/budget').doc(id).update({
         'amount': amount,

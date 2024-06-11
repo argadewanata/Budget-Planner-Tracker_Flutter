@@ -1,3 +1,5 @@
+import 'package:budgetplannertracker/services/expense_service.dart';
+import 'package:budgetplannertracker/services/trip_service.dart';
 import 'package:budgetplannertracker/widgets/notes.dart';
 import 'package:flutter/material.dart';
 import 'package:budgetplannertracker/models/trip.dart';
@@ -17,7 +19,9 @@ class TripDetailPage extends StatefulWidget {
 }
 
 class _TripDetailPageState extends State<TripDetailPage> {
-  final db = FirebaseFirestore.instance;
+  final _tripService = TripService();
+  final _expenseService = ExpenseService();
+
   late Trip _trip;
   final NumberFormat currencyFormatter = NumberFormat.currency(
     locale: 'id_ID',
@@ -58,7 +62,7 @@ class _TripDetailPageState extends State<TripDetailPage> {
           IconButton(
             icon: Icon(Icons.delete),
             onPressed: () async {
-              await db.collection('Trips').doc(widget.tripId).delete();
+              await _tripService.delete(widget.tripId);
               Navigator.pop(context);
             },
           ),
@@ -153,13 +157,10 @@ class _TripDetailPageState extends State<TripDetailPage> {
                       ),
                       SizedBox(height: 10),
                       StreamBuilder<List<Map<String, dynamic>>>(
-                        stream: FirebaseFirestore.instance
-                            .collection('Trips')
-                            .doc(widget.tripId)
-                            .collection('expenses')
-                            .snapshots()
-                            .map((snapshot) =>
-                                snapshot.docs.map((e) => e.data()).toList()),
+                        stream: _expenseService.getSnapshot(widget.tripId).map(
+                              (snapshot) =>
+                                  snapshot.docs.map((e) => e.data()).toList(),
+                            ),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
@@ -273,11 +274,8 @@ class _TripDetailPageState extends State<TripDetailPage> {
 
   Widget buildBudgetProgressBar(BuildContext context, Trip trip) {
     return StreamBuilder<List<Map<String, dynamic>>>(
-      stream: FirebaseFirestore.instance
-          .collection('Trips')
-          .doc(trip.id)
-          .collection('expenses')
-          .snapshots()
+      stream: _expenseService
+          .getSnapshot(widget.tripId)
           .map((snapshot) => snapshot.docs.map((e) => e.data()).toList()),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {

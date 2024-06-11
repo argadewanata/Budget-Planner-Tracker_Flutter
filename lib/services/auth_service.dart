@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final _db = FirebaseFirestore.instance;
 
   Stream<String> onAuthStateChanged() {
     return _auth.authStateChanges().map((User? user) => user?.uid ?? '');
@@ -37,6 +39,10 @@ class AuthService {
       email: email,
       password: password,
     );
+
+    await _db.collection('Users').doc(response.user!.uid).set({
+      'name': name,
+    });
 
     await updateUsername(name, response.user!);
     return response.user?.uid ?? '';
