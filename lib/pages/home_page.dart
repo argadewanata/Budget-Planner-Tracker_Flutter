@@ -15,8 +15,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   final List<Widget> _children = [
-    TripPage(),
     CurrentTripPage(),
+    TripPage(),
     ProfilePage(),
   ];
 
@@ -28,30 +28,30 @@ class _HomePageState extends State<HomePage> {
         title: Text("Travel Budget Tracker"),
       ),
       body: _children[_currentIndex],
-      floatingActionButton: _currentIndex == 1
+      floatingActionButton: _currentIndex == 0
           ? FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => NewTripPage(trip: newTrip),
-            ),
-          );
-        },
-        child: Icon(Icons.add),
-      )
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => NewTripPage(trip: newTrip),
+                  ),
+                );
+              },
+              child: Icon(Icons.add),
+            )
           : null,
       bottomNavigationBar: BottomNavigationBar(
         onTap: onTabTapped,
         currentIndex: _currentIndex,
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today_outlined),
-            label: "All Trip",
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.travel_explore),
             label: "Current Trip",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_today_outlined),
+            label: "All Trip",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.account_circle),
