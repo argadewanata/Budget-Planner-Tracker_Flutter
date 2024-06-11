@@ -1,4 +1,4 @@
-# Budget Planner Tracker
+# Budget Planner Tracker  
 
 A flutter app for final project group 0 in mobile programming class E 2023/2024
 
@@ -10,15 +10,11 @@ A flutter app for final project group 0 in mobile programming class E 2023/2024
 | Syukra Wahyu Ramadhan   | 5025211037 |
 | Rere Arga Dewanata      | 5025201078 |
 
-## Getting Started
+## Project Overview
+An android-based flutter app that can track your trip plan with each trip plan can track budget and todo list. Firebase was used as database and authentication.
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Features
+1. Authentication
+2. CRUD Trip plan
+3. CRUD Expense tracker for each trip plan
+4. CRUD To do list for each trip plan
