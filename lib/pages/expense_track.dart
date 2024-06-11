@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:budgetplannertracker/services/firestore_expense.dart'; // Tambahkan import ini
-import 'package:firebase_core/firebase_core.dart'; // Tambahkan import ini
+import 'package:intl/intl.dart';
+import 'package:budgetplannertracker/services/firestore_expense.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:budgetplannertracker/firebase_options.dart';
 
 class ExpenseTrack extends StatefulWidget{
@@ -9,13 +10,18 @@ class ExpenseTrack extends StatefulWidget{
   State<ExpenseTrack> createState() => _ExpenseTrackerPageState();
 }
 
-
 class _ExpenseTrackerPageState extends State<ExpenseTrack> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   String _selectedCategory = 'Food';
   final FirestoreService _firestoreService = FirestoreService();
+
+  final NumberFormat _currencyFormatter = NumberFormat.currency(
+    locale: 'id_ID',
+    symbol: 'Rp',
+    decimalDigits: 0,
+  );
 
   void _addExpense() async {
     if (_formKey.currentState!.validate()) {
@@ -118,12 +124,12 @@ class _ExpenseTrackerPageState extends State<ExpenseTrack> {
     );
   }
 
-
   double _calculateTotal(List<Map<String, dynamic>> expenses) {
     return expenses.fold(0, (sum, item) {
       return sum + double.parse(item['amount']);
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -202,7 +208,7 @@ class _ExpenseTrackerPageState extends State<ExpenseTrack> {
                   return Column(
                     children: [
                       Text(
-                        'Total Expense: \$${totalExpense.toStringAsFixed(2)}',
+                        'Total Expense: ${_currencyFormatter.format(totalExpense)}',
                         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       ListView.builder(
@@ -213,7 +219,7 @@ class _ExpenseTrackerPageState extends State<ExpenseTrack> {
                           final expense = expenses[index];
                           return ListTile(
                             title: Text(expense['description']!),
-                            subtitle: Text('${expense['category']} - \$${expense['amount']}'),
+                            subtitle: Text('${expense['category']} - ${_currencyFormatter.format(double.parse(expense['amount']))}'),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -231,7 +237,7 @@ class _ExpenseTrackerPageState extends State<ExpenseTrack> {
                                 IconButton(
                                   icon: Icon(Icons.delete),
                                   onPressed: () {
-                                    _firestoreService.deleteExpense(widget.trip ,expense['id']);
+                                    _firestoreService.deleteExpense(widget.trip, expense['id']);
                                   },
                                 ),
                               ],
