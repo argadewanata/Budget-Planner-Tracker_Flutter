@@ -35,8 +35,8 @@ class TripPage extends StatelessWidget {
 
           return ListView(
             children: [
-              buildCategorySection(context, 'Future Trips', futureTrips),
-              buildCategorySection(context, 'Past Trips', pastTrips),
+              buildCategorySection(context, 'Future Trips', futureTrips, false),
+              buildCategorySection(context, 'Past Trips', pastTrips, true),
             ],
           );
         },
@@ -44,7 +44,7 @@ class TripPage extends StatelessWidget {
     );
   }
 
-  Widget buildCategorySection(BuildContext context, String categoryTitle, List<Trip> trips) {
+  Widget buildCategorySection(BuildContext context, String categoryTitle, List<Trip> trips, bool isPast) {
     if (trips.isEmpty) {
       return SizedBox.shrink();
     }
@@ -58,13 +58,13 @@ class TripPage extends StatelessWidget {
             categoryTitle,
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black87),
           ),
-          ...trips.map((trip) => buildTripCard(context, trip, trip.id!)).toList(),
+          ...trips.map((trip) => buildTripCard(context, trip, trip.id!, isPast)).toList(),
         ],
       ),
     );
   }
 
-  Widget buildTripCard(BuildContext context, Trip trip, String tripId) {
+  Widget buildTripCard(BuildContext context, Trip trip, String tripId, bool isPast) {
     final NumberFormat currencyFormatter = NumberFormat.currency(
       locale: 'id_ID',
       symbol: 'Rp',
@@ -74,6 +74,7 @@ class TripPage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Card(
+        color: isPast ? Colors.grey[300] ?? Colors.grey : Colors.white,
         elevation: 4,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15),
@@ -95,15 +96,16 @@ class TripPage extends StatelessWidget {
               children: <Widget>[
                 Row(
                   children: <Widget>[
-                    Icon(Icons.location_on_outlined, color: Colors.blue[600]),
+                    Icon(Icons.location_on_outlined, color: isPast ? Colors.grey : Colors.blue[600]!),
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         trip.title ?? "Unknown Destination",
                         style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87),
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: isPast ? Colors.grey : Colors.black87,
+                        ),
                       ),
                     ),
                   ],
@@ -111,25 +113,26 @@ class TripPage extends StatelessWidget {
                 SizedBox(height: 10),
                 Row(
                   children: <Widget>[
-                    Icon(Icons.calendar_today_rounded, color: Colors.blue[600]),
+                    Icon(Icons.calendar_today_rounded, color: isPast ? Colors.grey : Colors.blue[600]!),
                     SizedBox(width: 8),
                     Text(
                       formatDateRange(trip.startDate, trip.endDate),
-                      style: TextStyle(fontSize: 16, color: Colors.black54),
+                      style: TextStyle(fontSize: 16, color: isPast ? Colors.grey : Colors.black54),
                     ),
                   ],
                 ),
                 SizedBox(height: 10),
                 Row(
                   children: <Widget>[
-                    Icon(Icons.attach_money, color: Colors.blue[600]),
+                    Icon(Icons.attach_money, color: isPast ? Colors.grey : Colors.blue[600]!),
                     SizedBox(width: 8),
                     Text(
                       currencyFormatter.format(trip.budget ?? 0),
                       style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black87),
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                        color: isPast ? Colors.grey : Colors.black87,
+                      ),
                     ),
                   ],
                 ),
@@ -137,7 +140,7 @@ class TripPage extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
-                    getTravelTypeIcon(trip.travelType),
+                    getTravelTypeIcon(trip.travelType, isPast),
                   ],
                 ),
               ],
@@ -166,18 +169,19 @@ class TripPage extends StatelessWidget {
     }
   }
 
-  Widget getTravelTypeIcon(String? travelType) {
+  Widget getTravelTypeIcon(String? travelType, bool isPast) {
+    Color iconColor = isPast ? Colors.grey : Colors.blue[600]!;
     switch (travelType) {
       case 'Car':
-        return Icon(Icons.directions_car, color: Colors.blue[600], size: 30);
+        return Icon(Icons.directions_car, color: iconColor, size: 30);
       case 'Plane':
-        return Icon(Icons.flight, color: Colors.blue[600], size: 30);
+        return Icon(Icons.flight, color: iconColor, size: 30);
       case 'Bus':
-        return Icon(Icons.directions_bus, color: Colors.blue[600], size: 30);
+        return Icon(Icons.directions_bus, color: iconColor, size: 30);
       case 'Train':
-        return Icon(Icons.train, color: Colors.blue[600], size: 30);
+        return Icon(Icons.train, color: iconColor, size: 30);
       default:
-        return Icon(Icons.help_outline, color: Colors.blue[200], size: 30);
+        return Icon(Icons.help_outline, color: isPast ? Colors.grey : Colors.blue[200]!, size: 30);
     }
   }
 }
