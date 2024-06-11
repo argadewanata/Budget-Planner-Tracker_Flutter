@@ -4,7 +4,7 @@ import 'package:budgetplannertracker/services/firestore_expense.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:budgetplannertracker/firebase_options.dart';
 
-class ExpenseTrack extends StatefulWidget{
+class ExpenseTrack extends StatefulWidget {
   final String trip;
   ExpenseTrack({Key? key, required this.trip}) : super(key: key);
   State<ExpenseTrack> createState() => _ExpenseTrackerPageState();
@@ -23,11 +23,34 @@ class _ExpenseTrackerPageState extends State<ExpenseTrack> {
     decimalDigits: 0,
   );
 
+  @override
+  void initState() {
+    super.initState();
+    _amountController.addListener(_formatAmount);
+  }
+
+  void _formatAmount() {
+    final text = _amountController.text;
+    if (text.isEmpty) return;
+    _amountController.removeListener(_formatAmount);
+
+    final value = double.tryParse(text.replaceAll(RegExp(r'[^\d]'), ''));
+    if (value != null) {
+      _amountController.text = _currencyFormatter.format(value);
+      _amountController.selection = TextSelection.fromPosition(
+        TextPosition(offset: _amountController.text.length),
+      );
+    }
+
+    _amountController.addListener(_formatAmount);
+  }
+
   void _addExpense() async {
     if (_formKey.currentState!.validate()) {
+      final amount = _amountController.text.replaceAll(RegExp(r'[^\d]'), '');
       await _firestoreService.addExpense(
         widget.trip,
-        _amountController.text,
+        amount,
         _descriptionController.text,
         _selectedCategory,
       );
@@ -40,7 +63,7 @@ class _ExpenseTrackerPageState extends State<ExpenseTrack> {
   }
 
   void _editExpense(String id, String amount, String description, String category) {
-    _amountController.text = amount;
+    _amountController.text = _currencyFormatter.format(double.parse(amount));
     _descriptionController.text = description;
     _selectedCategory = category;
 
@@ -101,10 +124,11 @@ class _ExpenseTrackerPageState extends State<ExpenseTrack> {
             TextButton(
               onPressed: () async {
                 if (_formKey.currentState!.validate()) {
+                  final amount = _amountController.text.replaceAll(RegExp(r'[^\d]'), '');
                   await _firestoreService.updateExpense(
                     widget.trip,
                     id,
-                    _amountController.text,
+                    amount,
                     _descriptionController.text,
                     _selectedCategory,
                   );
