@@ -27,7 +27,7 @@ An android-based flutter app that can track your trip plan with each trip plan c
 3. All Trip Page    
    <img src="https://github.com/argadewanata/Budget-Planner-Tracker_Flutter/blob/5ce0ee71a854255cd76abba4abaf1b22381468d1/app_screenshots/AllTripPage.png" width=30% height=30%>    
 4. Current Trip Page  
-   <img src="https://github.com/argadewanata/Budget-Planner-Tracker_Flutter/blob/5ce0ee71a854255cd76abba4abaf1b22381468d1/app_screenshots/AllTripPage.png" width=30% height=30%>  
+   <img src="https://github.com/argadewanata/Budget-Planner-Tracker_Flutter/blob/8b4e9beb14bf98843771a0c553a470e93fc44c96/app_screenshots/CurrentTripPage.png" width=30% height=30%>  
 5. Trip Detail Page  
    <img src="https://github.com/argadewanata/Budget-Planner-Tracker_Flutter/blob/5ce0ee71a854255cd76abba4abaf1b22381468d1/app_screenshots/TripDetail_1.png" width=30% height=30%>    
    <img src="https://github.com/argadewanata/Budget-Planner-Tracker_Flutter/blob/5ce0ee71a854255cd76abba4abaf1b22381468d1/app_screenshots/TripDetail_2.png" width=30% height=30%>       
