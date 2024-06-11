@@ -228,35 +228,6 @@ class _TripDetailPageState extends State<TripDetailPage> {
                                       subtitle: Text(
                                         '${expense['category']} - ${currencyFormatter.format(int.parse(expense['amount']))}',
                                       ),
-                                      trailing: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          IconButton(
-                                            icon: Icon(Icons.edit),
-                                            onPressed: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      ExpenseTrack(
-                                                          trip: widget.tripId),
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                          IconButton(
-                                            icon: Icon(Icons.delete),
-                                            onPressed: () async {
-                                              await FirebaseFirestore.instance
-                                                  .collection('Trips')
-                                                  .doc(widget.tripId)
-                                                  .collection('expenses')
-                                                  .doc(expense['id'])
-                                                  .delete();
-                                            },
-                                          ),
-                                        ],
-                                      ),
                                     ),
                                   );
                                 },
