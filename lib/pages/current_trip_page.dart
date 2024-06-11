@@ -1,3 +1,4 @@
+import 'package:budgetplannertracker/services/trip_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:budgetplannertracker/models/trip.dart';
@@ -5,14 +6,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'trip_detail_page.dart';
 
 class CurrentTripPage extends StatelessWidget {
-  const CurrentTripPage({super.key});
+  final _tripService = TripService();
+
+  CurrentTripPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('Trips').snapshots(),
+        stream: _tripService.getSnapshot(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Center(child: CircularProgressIndicator());
@@ -23,7 +26,11 @@ class CurrentTripPage extends StatelessWidget {
             return Trip.fromJson(doc.data() as Map<String, dynamic>, doc.id);
           }).toList();
 
-          final currentTrips = tripsList.where((trip) => trip.startDate!.isBefore(currentDate) && trip.endDate!.isAfter(currentDate)).toList();
+          final currentTrips = tripsList
+              .where((trip) =>
+                  trip.startDate!.isBefore(currentDate) &&
+                  trip.endDate!.isAfter(currentDate))
+              .toList();
 
           if (currentTrips.isEmpty) {
             return Center(
@@ -36,7 +43,9 @@ class CurrentTripPage extends StatelessWidget {
 
           return ListView(
             padding: EdgeInsets.all(16.0),
-            children: currentTrips.map((trip) => buildTripCard(context, trip, trip.id!)).toList(),
+            children: currentTrips
+                .map((trip) => buildTripCard(context, trip, trip.id!))
+                .toList(),
           );
         },
       ),
@@ -74,7 +83,8 @@ class CurrentTripPage extends StatelessWidget {
               children: <Widget>[
                 Row(
                   children: <Widget>[
-                    Icon(Icons.location_on_outlined, color: Colors.blue[600], size: 30),
+                    Icon(Icons.location_on_outlined,
+                        color: Colors.blue[600], size: 30),
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -90,7 +100,8 @@ class CurrentTripPage extends StatelessWidget {
                 SizedBox(height: 10),
                 Row(
                   children: <Widget>[
-                    Icon(Icons.calendar_today_rounded, color: Colors.blue[600], size: 30),
+                    Icon(Icons.calendar_today_rounded,
+                        color: Colors.blue[600], size: 30),
                     SizedBox(width: 8),
                     Text(
                       formatDateRange(trip.startDate, trip.endDate),

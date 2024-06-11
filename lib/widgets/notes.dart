@@ -164,6 +164,7 @@ class NotesWidget extends StatelessWidget {
                       .collection('notes')
                       .doc(note.id)
                       .delete();
+                  Navigator.pop(context);
                 },
                 child: const Text('Delete'),
               ),

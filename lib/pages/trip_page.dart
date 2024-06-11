@@ -1,3 +1,4 @@
+import 'package:budgetplannertracker/services/trip_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:budgetplannertracker/models/trip.dart';
@@ -5,12 +6,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'trip_detail_page.dart';
 
 class TripPage extends StatelessWidget {
+  final _tripService = TripService();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('Trips').snapshots(),
+        stream: _tripService.getSnapshot(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Center(child: CircularProgressIndicator());
@@ -21,8 +24,12 @@ class TripPage extends StatelessWidget {
             return Trip.fromJson(doc.data() as Map<String, dynamic>, doc.id);
           }).toList();
 
-          final pastTrips = tripsList.where((trip) => trip.endDate!.isBefore(currentDate)).toList();
-          final futureTrips = tripsList.where((trip) => trip.startDate!.isAfter(currentDate)).toList();
+          final pastTrips = tripsList
+              .where((trip) => trip.endDate!.isBefore(currentDate))
+              .toList();
+          final futureTrips = tripsList
+              .where((trip) => trip.startDate!.isAfter(currentDate))
+              .toList();
 
           if (tripsList.isEmpty) {
             return Center(
@@ -44,7 +51,8 @@ class TripPage extends StatelessWidget {
     );
   }
 
-  Widget buildCategorySection(BuildContext context, String categoryTitle, List<Trip> trips, bool isPast) {
+  Widget buildCategorySection(BuildContext context, String categoryTitle,
+      List<Trip> trips, bool isPast) {
     if (trips.isEmpty) {
       return SizedBox.shrink();
     }
@@ -56,15 +64,21 @@ class TripPage extends StatelessWidget {
         children: [
           Text(
             categoryTitle,
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black87),
+            style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87),
           ),
-          ...trips.map((trip) => buildTripCard(context, trip, trip.id!, isPast)).toList(),
+          ...trips
+              .map((trip) => buildTripCard(context, trip, trip.id!, isPast))
+              .toList(),
         ],
       ),
     );
   }
 
-  Widget buildTripCard(BuildContext context, Trip trip, String tripId, bool isPast) {
+  Widget buildTripCard(
+      BuildContext context, Trip trip, String tripId, bool isPast) {
     final NumberFormat currencyFormatter = NumberFormat.currency(
       locale: 'id_ID',
       symbol: 'Rp',
@@ -96,7 +110,8 @@ class TripPage extends StatelessWidget {
               children: <Widget>[
                 Row(
                   children: <Widget>[
-                    Icon(Icons.location_on_outlined, color: isPast ? Colors.grey : Colors.blue[600]!),
+                    Icon(Icons.location_on_outlined,
+                        color: isPast ? Colors.grey : Colors.blue[600]!),
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -113,18 +128,22 @@ class TripPage extends StatelessWidget {
                 SizedBox(height: 10),
                 Row(
                   children: <Widget>[
-                    Icon(Icons.calendar_today_rounded, color: isPast ? Colors.grey : Colors.blue[600]!),
+                    Icon(Icons.calendar_today_rounded,
+                        color: isPast ? Colors.grey : Colors.blue[600]!),
                     SizedBox(width: 8),
                     Text(
                       formatDateRange(trip.startDate, trip.endDate),
-                      style: TextStyle(fontSize: 16, color: isPast ? Colors.grey : Colors.black54),
+                      style: TextStyle(
+                          fontSize: 16,
+                          color: isPast ? Colors.grey : Colors.black54),
                     ),
                   ],
                 ),
                 SizedBox(height: 10),
                 Row(
                   children: <Widget>[
-                    Icon(Icons.attach_money, color: isPast ? Colors.grey : Colors.blue[600]!),
+                    Icon(Icons.attach_money,
+                        color: isPast ? Colors.grey : Colors.blue[600]!),
                     SizedBox(width: 8),
                     Text(
                       currencyFormatter.format(trip.budget ?? 0),
@@ -181,7 +200,8 @@ class TripPage extends StatelessWidget {
       case 'Train':
         return Icon(Icons.train, color: iconColor, size: 30);
       default:
-        return Icon(Icons.help_outline, color: isPast ? Colors.grey : Colors.blue[200]!, size: 30);
+        return Icon(Icons.help_outline,
+            color: isPast ? Colors.grey : Colors.blue[200]!, size: 30);
     }
   }
 }
