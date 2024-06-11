@@ -1,10 +1,12 @@
 import 'package:budgetplannertracker/models/note.dart';
+import 'package:budgetplannertracker/services/note_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class NotesWidget extends StatelessWidget {
   final String tripId;
   final db = FirebaseFirestore.instance;
+  final _noteService = NoteService();
 
   NotesWidget({super.key, required this.tripId});
 
@@ -21,12 +23,8 @@ class NotesWidget extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           StreamBuilder<List<Note>>(
-              stream: db
-                  .collection('Trips')
-                  .doc(tripId)
-                  .collection('notes')
-                  .snapshots()
-                  .map((snapshot) => snapshot.docs
+              stream: _noteService.getSnapshot(tripId).map((snapshot) =>
+                  snapshot.docs
                       .map((e) => Note.fromJson(e.data(), e.id))
                       .toList()),
               builder: (context, snapshot) {
@@ -68,12 +66,8 @@ class NotesWidget extends StatelessWidget {
         leading: Checkbox(
           value: note.isFinished,
           onChanged: (value) {
-            db
-                .collection('Trips')
-                .doc(tripId)
-                .collection('notes')
-                .doc(note.id)
-                .update({'isFinished': value});
+            note.isFinished = value!;
+            _noteService.update(tripId, note);
           },
         ),
       ),
@@ -119,11 +113,7 @@ class NotesWidget extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: ElevatedButton(
             onPressed: () {
-              db
-                  .collection('Trips')
-                  .doc(tripId)
-                  .collection('notes')
-                  .add(note.toJson());
+              _noteService.create(tripId, note);
               Navigator.pop(context);
             },
             child: const Text('Add'),
@@ -158,12 +148,7 @@ class NotesWidget extends StatelessWidget {
                   backgroundColor: MaterialStateProperty.all(Colors.red[100]),
                 ),
                 onPressed: () {
-                  db
-                      .collection('Trips')
-                      .doc(tripId)
-                      .collection('notes')
-                      .doc(note.id)
-                      .delete();
+                  _noteService.delete(tripId, note.id);
                   Navigator.pop(context);
                 },
                 child: const Text('Delete'),
@@ -172,12 +157,7 @@ class NotesWidget extends StatelessWidget {
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
-                    db
-                        .collection('Trips')
-                        .doc(tripId)
-                        .collection('notes')
-                        .doc(note.id)
-                        .update(note.toJson());
+                    _noteService.update(tripId, note);
                     Navigator.pop(context);
                   },
                   child: const Text('Save'),
