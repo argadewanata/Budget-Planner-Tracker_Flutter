@@ -24,4 +24,16 @@ An android-based flutter app that can track your trip plan with each trip plan c
    <img src="https://github.com/argadewanata/Budget-Planner-Tracker_Flutter/blob/060e5fc99e7221999b05002a8ae5a48ec42c103f/app_screenshots/RegisterPage.png" width=30% height=30%>
 2. Login Page  
    <img src="https://github.com/argadewanata/Budget-Planner-Tracker_Flutter/blob/060e5fc99e7221999b05002a8ae5a48ec42c103f/app_screenshots/LoginPage.png" width=30% height=30%>
+3. All Trip Page    
+   <img src="https://github.com/argadewanata/Budget-Planner-Tracker_Flutter/blob/5ce0ee71a854255cd76abba4abaf1b22381468d1/app_screenshots/AllTripPage.png" width=30% height=30%>    
+4. Current Trip Page  
+   <img src="https://github.com/argadewanata/Budget-Planner-Tracker_Flutter/blob/5ce0ee71a854255cd76abba4abaf1b22381468d1/app_screenshots/AllTripPage.png" width=30% height=30%>  
+5. Trip Detail Page  
+   <img src="https://github.com/argadewanata/Budget-Planner-Tracker_Flutter/blob/5ce0ee71a854255cd76abba4abaf1b22381468d1/app_screenshots/TripDetail_1.png" width=30% height=30%>    
+   <img src="https://github.com/argadewanata/Budget-Planner-Tracker_Flutter/blob/5ce0ee71a854255cd76abba4abaf1b22381468d1/app_screenshots/TripDetail_2.png" width=30% height=30%>       
+7. New Trip Page  
+   <img src="https://github.com/argadewanata/Budget-Planner-Tracker_Flutter/blob/5ce0ee71a854255cd76abba4abaf1b22381468d1/app_screenshots/NewTripPage.png" width=30% height=30%>       
+8. Expense Tracker Page    
+   <img src="https://github.com/argadewanata/Budget-Planner-Tracker_Flutter/blob/5ce0ee71a854255cd76abba4abaf1b22381468d1/app_screenshots/ExpenseTrackerPage.png" width=30% height=30%>         
+    
 
