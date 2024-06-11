@@ -39,12 +39,11 @@ class MyApp extends StatelessWidget {
             unselectedItemColor: Colors.blue[200],
           ),
         ),
-        home: const HomePage(),
-        initialRoute: '/login',
+        initialRoute: '/home',
         routes: {
+          '/home': (context) => const HomeController(),
           '/login': (context) => const AuthPage(authType: AuthType.login),
           '/register': (context) => const AuthPage(authType: AuthType.register),
-          '/home': (context) => const HomeController(),
         },
       ),
     );
@@ -61,8 +60,11 @@ class HomeController extends StatelessWidget {
     return StreamBuilder(
       stream: auth.onAuthStateChanged(),
       builder: (context, snapshot) {
+        print("[DEBUG] snapshot: $snapshot");
         if (snapshot.connectionState == ConnectionState.active) {
-          final bool signedIn = snapshot.hasData;
+          final bool signedIn =
+              snapshot.hasData && auth.getCurrentUser() != null;
+          print("[DEBUG] signedIn: $signedIn");
           return signedIn
               ? const HomePage()
               : const AuthPage(authType: AuthType.login);

@@ -6,16 +6,16 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final _db = FirebaseFirestore.instance;
 
-  Stream<String> onAuthStateChanged() {
-    return _auth.authStateChanges().map((User? user) => user?.uid ?? '');
+  Stream onAuthStateChanged() {
+    return _auth.authStateChanges();
   }
 
   String getCurrentUserId() {
     return _auth.currentUser?.uid ?? '';
   }
 
-  Future getCurrentUser() async {
-    return _auth.currentUser;
+  User? getCurrentUser() {
+    return _auth.currentUser!;
   }
 
   getProfileImage() {
